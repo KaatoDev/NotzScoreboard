@@ -1,0 +1,66 @@
+staff:
+  lines:
+    onl:
+      - ''
+      - '&e⎧ Caso precise de ajuda'
+      - '&e⎜ chame um &lstaff&e:'
+      - '&e⎩ -&r {staff}'
+    offl:
+      - ''
+      - '&e⎧ &eTem dúvidas?'
+      - '&e⎩ Utilize /&fticket'
+  enable: true
+  scoreboard:
+    - ''
+    - '&6⧽ &r{player_name}'
+    - '&6Players online&f: {player_list}'
+    - ''
+    - '&2⎧ &aTps&f: {tps}'
+    - '&2⎩ &aPing&f: {ping}'
+scoreboard:
+  - ''
+  - '&6⧽ &r{player_displayname}'
+  - ''
+  - '&9⎧ &bRank&f: {rank}'
+  - '&9⎩ &3{status_rankup}'
+  - ''
+  - '&2⎧ &aMoney&f: {money}'
+  - '&2⎩ &aCash&f: {cash}'
+  - ''
+  - '&5› &dClan&f: {clan}'
+staff_sb:
+  ajudante:
+    - ''
+    - '&e⎧ &6Staffs online&f: {staff_list}'
+    - '&e⎩ - &f{staff}'
+  trial:
+    - ''
+    - '&d⎧ &6Staffs online&f: {staff_list}'
+    - '&d⎩ - &f{staff}'
+  moderador:
+    - ''
+    - '&2⎧ &6Superiores online&f: {staff_list}'
+    - '&2⎩ - &f{staff}'
+  admin:
+    - ''
+    - '&c⎧ &eAjudantes online&f: {ajd_list}'
+    - '&c⎜ &e- &f{staff_ajd}'
+    - '&c⎜ &dTrials online&f: {trial_list}'
+    - '&c⎜ &d- &f{staff_trial}'
+    - '&c⎜ &2Mods online&f: {mod_list}'
+    - '&c⎜ &2- &f{staff_mod}'
+    - '&c⎜ &6Superiores online&f: {staff_list}'
+    - '&c⎩ &4- &f{staff}'
+  gerente:
+    - ''
+    - '&4⎧ &cAdmins online&f: {adm_list}'
+    - '&4⎜ &c- &f{staff_admin}'
+    - '&4⎩ &6Staffs online&f: {staff_list}'
+  diretor:
+    - ''
+    - '&9⎧ &eAjudantes&f: {ajd_list}'
+    - '&9⎜ &dTrials&f: {trial_list}'
+    - '&9⎜ &2Moderadores&f: {mod_list}'
+    - '&9⎜ &cAdmins&f: {adm_list}'
+    - '&9⎜ &4Gerentes&f: {gerente_list}'
+    - '&9⎩ &6Staffs online&f: {staff_list}'
