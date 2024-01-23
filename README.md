@@ -48,8 +48,13 @@ Na scoreboard de cada cargo será listado apenas os players dos seguintes cargos
 
 ## Commandos
 ### `/notzsb`
- - `add` \<cargo> \<player>
- - `remove` \<player>
+ - `add` \<cargo> \<player> - Adiciona e atribui um player à um cargo.
+ - `debug` - Acompanha em tempo real a atualização da scoreboard de cada staff setado.
+ - `help` - Lista os comandos do plugin.
+ - `list` - Lista todos os players salvos.
+ - `reload` - Recarrega as configurações (.yml) do plugin.
+ - `remove` \<player> - Remove um player da lista.
+ - `reset` - Reseta a database salva inteira.
  - `setRole` \<cargo> (player) - Altera o cargo do player.
  - `setScore` \<cargo> (player) - Altera a scoreboard do player.
 
