@@ -1,4 +1,8 @@
-# **NotzScoreboard**
+<div align="center">
+<img src="https://github.com/KaatoDev/NotzScoreboard/assets/107152563/e42230a1-3d52-4717-b592-23ab428467b7" alt="" height="320" >
+</div>
+
+#
 NotzScoreboard é um plugin de Scoreboard completo e totalmente personalizável com suporte a diferenças para staffs e players; display dinâmico de staffs em cada scoreboard; database via MySQL otimizado com armazenamento próprio.
 
 ## Informações
