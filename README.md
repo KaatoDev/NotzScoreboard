@@ -15,7 +15,11 @@ Na scoreboard de cada cargo será listado apenas os players dos seguintes cargos
  - `Moderadores` - Admins e Gerentes.
  - `Admins` - Gerentes e Diretores.
  - `Gerentes` e `Diretores` - Todos.
+
 ###### Quando utilizado o placeholder {staff} ou {staff_list}.
+
+### Dependências
+- PlaceholderAPI
 
 ## Spoilers
 
