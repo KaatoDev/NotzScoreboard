@@ -18,7 +18,7 @@ Na scoreboard de cada cargo será listado apenas os players dos seguintes cargos
 
 ###### Quando utilizado o placeholder {staff} ou {staff_list}.
 
-### Dependências
+## Dependências
 - PlaceholderAPI
 
 ## Spoilers
