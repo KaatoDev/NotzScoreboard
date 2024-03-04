@@ -3,7 +3,7 @@
 
 
 #
-NotzScoreboard é um plugin de Scoreboard completo e totalmente personalizável com suporte a diferenças para staffs e players, display dinâmico de staffs em cada scoreboard e database via MySQL otimizado com armazenamento próprio.
+NotzScoreboard é um plugin de Scoreboard completo e totalmente personalizável com suporte a placeholders (PlaceholderAPI) e scoreboard diferentes para staffs e players, display dinâmico de staffs em cada scoreboard e database via MySQL ou SQLite.
 
 </div>
 
