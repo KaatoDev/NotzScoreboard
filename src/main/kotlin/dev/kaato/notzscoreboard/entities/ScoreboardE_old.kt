@@ -34,7 +34,7 @@ import kotlin.random.Random
  * @param color The color that will be set at the start of each line.
  * @param visibleGroups List of scoreboard groups that's used for the {staff} placeholder.
  */
-class ScoreboardE(val id: Int) {
+class ScoreboardE_old(val id: Int) {
     /**
      * @param name Unique name to be used in commands.
      * @param display Displayname that will appear on messages.
@@ -52,7 +52,6 @@ class ScoreboardE(val id: Int) {
     private var updated: LocalDateTime?
 
     private var linesList = mutableListOf<String>()
-    private var suffixLinesList = mutableListOf<String>()
     private var players = mutableListOf<Player>()
     private var isntDefault = true
     private var task: BukkitTask? = null
@@ -268,14 +267,14 @@ class ScoreboardE(val id: Int) {
 
         var blanks = ""
 
-//        linesList = linesList.map {
-//            if (it.isBlank() || it == " ") {
-//                blanks += " "
-//                it + blanks
-//
-//            } else if (it[0] == '&') it
-//            else color + it
-//        }.toMutableList()
+        linesList = linesList.map {
+            if (it.isBlank() || it == " ") {
+                blanks += " "
+                it + blanks
+
+            } else if (it[0] == '&') it
+            else color + it
+        }.toMutableList()
 
         updatePlaceholder()
         shutdownSB()
@@ -399,7 +398,7 @@ class ScoreboardE(val id: Int) {
 
     /** Update the scoreboard on the database. */
     fun databaseUpdate() {
-        updateScoreboardDB(this)
+//        updateScoreboardDB(this)
     }
 
     /** clear the scoreboards of all players in the player's list. */

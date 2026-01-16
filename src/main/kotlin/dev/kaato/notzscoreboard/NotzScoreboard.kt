@@ -9,8 +9,9 @@ import dev.kaato.notzapi.managers.MessageManager
 import dev.kaato.notzapi.managers.NotzManager
 import dev.kaato.notzapi.managers.PlaceholderManager
 import dev.kaato.notzapi.utils.*
-import dev.kaato.notzapi.utils.MessageU.Companion.sendHoverURL
+import dev.kaato.notzapi.utils.MessageU.Companion.c
 import dev.kaato.notzscoreboard.commands.NScoreboardC
+import dev.kaato.notzscoreboard.commands.NTestC
 import dev.kaato.notzscoreboard.database.DAO
 import dev.kaato.notzscoreboard.events.JoinLeaveE
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.load
@@ -18,7 +19,6 @@ import dev.kaato.notzscoreboard.manager.ScoreboardManager.shutdown
 import org.bstats.bukkit.Metrics
 import org.bukkit.Bukkit
 import org.bukkit.Bukkit.getPluginManager
-import org.bukkit.Bukkit.savePlayers
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
 import kotlin.system.measureTimeMillis
@@ -53,7 +53,7 @@ class NotzScoreboard : JavaPlugin() {
 
             notzAPI = Bukkit.getServicesManager().load(NotzAPI::class.java)
             napi = addPlugin(plugin)
-            napi.version = "3.4-pre1"
+            napi.version = "3.4-pre2"
 
             messageManager = napi.messageManager
             itemManager = napi.itemManager
@@ -96,6 +96,7 @@ class NotzScoreboard : JavaPlugin() {
 
     private fun regCommands() {
         getCommand("nscoreboard")?.setExecutor(NScoreboardC())
+        getCommand("test")?.setExecutor(NTestC())
     }
 
     private fun regEvents() {
@@ -122,8 +123,8 @@ class NotzScoreboard : JavaPlugin() {
         Bukkit.getOnlinePlayers().forEach {
             if (othersU.isAdmin(it)) {
                 it.sendMessage(" ")
-                sendHoverURL(it, messageU.set("{prefix}") + " &6Para mais plugins como este, acesse o &e&onosso site&6!", arrayOf("&b&okaato.dev/plugins"), "https://kaato.dev/plugins"); it.sendMessage(" ")
-                sendHoverURL(it, messageU.set("{prefix}") + " &6For more plugins like this, visit &e&oour website&6!", arrayOf("&b&okaato.dev/plugins"), "https://kaato.dev/plugins"); it.sendMessage(" ")
+                it.sendMessage(c("${messageU.set("{prefix}")} &6For more plugins like this, visit &e&oour website&6! &&url[&b&okaato.dev/plugins](https://kaato.dev/plugins)"))
+                it.sendMessage(" ")
             }
         }
     }
@@ -136,7 +137,6 @@ class NotzScoreboard : JavaPlugin() {
     override fun onDisable() {
         removePlugin(plugin)
 //        saveScoreboards()
-        savePlayers()
         shutdown()
     }
 }

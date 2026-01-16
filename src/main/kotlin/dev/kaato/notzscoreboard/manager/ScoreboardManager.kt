@@ -1,6 +1,6 @@
 package dev.kaato.notzscoreboard.manager
 
-import dev.kaato.notzapi.utils.MessageU
+import dev.kaato.notzapi.utils.MessageU.Companion.c
 import dev.kaato.notzapi.utils.MessageU.Companion.join
 import dev.kaato.notzscoreboard.NotzScoreboard.Companion.messageU
 import dev.kaato.notzscoreboard.NotzScoreboard.Companion.placeholderManager
@@ -255,7 +255,7 @@ object ScoreboardManager {
         loadPlaceholders()
 
         val templatesConfig = sf.config.getMapList("templates")
-        default_group = sf.config.getString("default-group")?:""
+        default_group = sf.config.getString("default-group") ?: ""
         arrayOf("low", "medium", "high").forEach { priorityList[it] = PriorityClass(null, sf.config.getLong("priority-time.$it") * 20) }
 
         templatesConfig.forEach { map ->
@@ -280,7 +280,7 @@ object ScoreboardManager {
 
         placeholderManager.addPlaceholders(
             hashMapOf(
-                "{title}" to { sf.config.getString("title")?:"[NotzScoreboard]" },
+                "{title}" to { sf.config.getString("title") ?: "[NotzScoreboard]" },
 
                 "{rank}" to { p: Any? ->
                     var rank = "&7Sem rank."
@@ -309,7 +309,7 @@ object ScoreboardManager {
 
                     if (p != null && Bukkit.getServer().pluginManager.getPlugin("simpleclans") != null && setPlaceholders(p as Player, "%simpleclans_clan_name%").isNotEmpty()) {
                         val pa = setPlaceholders(p, "%simpleclans_clan_name%")
-                        clan = MessageU.c(pa)
+                        clan = c(pa).toString()
                     }
                     clan
                 },
@@ -319,7 +319,7 @@ object ScoreboardManager {
 
                     if (p != null && Bukkit.getServer().pluginManager.getPlugin("simpleclans") != null && setPlaceholders(p as Player, "%simpleclans_tag_label%").isNotEmpty()) {
                         val pa = setPlaceholders(p, "%simpleclans_tag_label%")
-                        clan = MessageU.c(pa.substring(4, pa.length - 5))
+                        clan = c(pa.substring(4, pa.length - 5)).toString()
                     }
                     clan
                 },

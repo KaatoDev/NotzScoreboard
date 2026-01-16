@@ -1,9 +1,15 @@
 name: NotzScoreboard
-version: '3.4-pre1'
+version: '3.4-pre2'
 main: dev.kaato.notzscoreboard.NotzScoreboard
 softdepend: [ PlaceholderAPI, NotzAPI ]
+api-version: '1.21'
+authors: [ KaaDev ]
+description: A multi-scoreboard plugin for ranks, VIPs, and especially staff. Fully customizable.
+website: https://kaato.dev
 
 commands:
+  test:
+    description: notzscoreboard admin command
   nscoreboard:
     description: notzscoreboard admin command
     usage: /nsb
