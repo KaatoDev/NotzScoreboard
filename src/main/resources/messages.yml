@@ -4,7 +4,7 @@
 # {default<0-9>} = uses a string previously set in the plugin (you can't change this from outside the plugin);
 # {quantity} = gets the item's quantity.
 
-prefix: '&2[&fNotzSbV3&2]&f'
+prefix: '&g2f2[NotzSbV4]&f'
 
 messages:
   no-perm: '&cNo permission.'
@@ -16,23 +16,15 @@ messages:
   delete2: '&cThe inserted scoreboard does not exist!'
   delete3: '&eThe &f{default} &escoreboard is set as default and therefore &ccannot be deleted&e!'
   addplayer: '&cThe inserted player does not exist or is offline.'
-  addgroup: '&cThe inserted group does not exist.'
   pause: '&cUse only numbers in the argument!'
   remplayer: '&cThe inserted player does not exist or is offline.'
-  remgroup: '&cThe inserted group does not exist.'
-  setcolor: '&cUse a valid color format. &7(/colors)'
-  template: '&eThe crate templates have been set correctly!'
   create1: '&cThe &f{default} scoreboard &calready exists!'
   create2: '&cUse another name for the scoreboard!'
   createScoreboard: '&eThe &fscoreboard {default} &ewas created successfully!'
-  viewScoreboard1: '&eViewing &f{default} scoreboard&e.'
-  viewScoreboard2: '&cThis scoreboard does not exist.'
-  pauseScoreboard1: '&ePausing &fscoreboard {default0} &efor &a{default1} &fminute{default2}&e.'
-  pauseScoreboard2: '&cThis scoreboard does not exist.'
+  viewScoreboard: '&eViewing &f{default} scoreboard&e.'
+  pauseScoreboard: '&ePausing &fscoreboard {default0} &efor &a{default1} &fminute{default2}&e.'
   addPlayerTo1: '&eThe &fscoreboard {default0} &ewas added to player {default1}&e.'
   addPlayerTo2: '&cThe player {default}&c already has this scoreboard.'
-  remPlayerFrom1: '&eThe &fscoreboard {default0} &ehas been removed from player {default1}&e.'
-  remPlayerFrom2: '&cThe player {default0} &chas the &fscoreboard {default1}&c.'
   addGroupTo1: '&eThe group {default0} &ehas been added to the visible groups of the &fscoreboard {default1}&e.'
   addGroupTo2: '&cThe group {default0} &cis already part of the visible groups of the &fscoreboard {default1}&c.'
   remGroupFrom1: '&eThe group {default0} &ehas been removed from the visible groups of &fscoreboard {default1}&e'
@@ -44,7 +36,9 @@ messages:
   setTemplate3: '&cYou must fill in at least one of the template fields!'
   setColor1: "&eThe color of &fscoreboard {default0} &ehas been changed from &c'{default1}&c'&e to &a'{default2}&a'&e."
   setColor2: '&aThis is already the current color for &fscoreboard {default}&c!'
-  reset: '&cThe inserted player does not exist or is offline.'
+  notFound1: '&cThis player does not exist or is offline.'
+  notFound2: '&cThis scoreboard does not exist.'
+  notFound3: '&cThe inserted group does not exist.'
   resetPlayer1: '&eThe scoreboard for &fplayer {default} &ehas been reset to the default.'
   resetPlayer2: '&cThe &fplayer {default}&c is already on the default scoreboard!'
   seePlayers: '&cThere are no players with a scoreboard other than the default one.'

@@ -1,40 +1,26 @@
-# The 'player' group is set by default, edit the template, header and footer for it.
-# If there is no attribute set in the 'scoreboard' area for a group, it will be set the default (player).
-
-# `{clan}` - Clan name. (Simpleclans)
-# `{clan_tag}` - Clan tag. (Simpleclans)
-# `{clankdr}` - Clan KDR. (Simpleclans)
-# `{money}` - Player money directly from Vault. (Using PlaceholderAPI)
-# `{player_name}` - Player name.
-# `{player_displayname}` - Player display name.
-# `{ping}` - Player ping. (Using PlaceholderAPI)
-# `{rank}` - (yPlugins yRanks) Uses the tag as the color, followed by the name.
-# `{status_rankup}` - (yPlugins yRanks) Uses the tag as the color, followed by the status.
-# `{tps} - Server TPS. (Using PlaceholderAPI)
-# `{staff}` - Gets the nickname of one of the online players in the visible groups of that group.
-# `{supstaff}` - Same as {staff}, but returns an alternative message if the player is offline.
-# `{staff_list}` - Number of online players in the visible groups of that group.
-# `{staff_list}` - Number of online players in the visible groups of that group.
-# `{staff_'group'}` - Gets one of the players in that group.
-# `{'group'_list}` - Gets the number of online players in that group.
-
 title: '&7-[ &5&lNotz &f&lNework &7]-'
 
-placeholders: # All words included here will need to be replaced with {} around to be used.
+# Create custom or default placeholders. You can put a PlaceholderAPI placeholder like 'simpleclans_tag_label' (without the %).
+# It doesn't matter if you put a placeholder with {} or %%!
+placeholders: # All placeholders included here will need to be replaced with {} around to be used.
   - nsb: "notzscoreboard"
+  - rank: "&7No rank."
+  - status_rankup: "&7------."
+  - clan: "&7No clan."
+  - clan_tag: "&7No clan."
+  - clankdr: "&7No KDR."
 
+# The 'player' group is set by default, edit the template, header and footer for it.
+# If there is no attribute set in the 'scoreboard' area for a group, it will be set the default (player).
 default-group: 'player'
 priority-time: # in seconds | default is 20 seconds
   owner: 1
   manager: 1
   player: 5
 
-# This plugin uses Teams on scoreboard, what means that when a line has
-# a placeholder (% or {}), the code of the plugin separates the line
-# between prefix (before placeholder) and suffix (placeholder).
+# Prefix: before placeholder - Suffix: placeholder.
 # The prefix max length is 38 and the suffix is 16.
-# This makes the scoreboard more efficient and the line flexible.
-# To keep a line with placeholder static, use # at the start of the line.
+# It doesn't matter if you put a placeholder with {} or %%!
 templates:
   - player:
       - ''
@@ -87,8 +73,9 @@ templates:
       - '⎜ &4Managers&f: {manager_list}'
       - '⎩ &6Staffs online&f: {staff_list}'
 
-
-staff-status: ## Set "staff-status" on the scoreboard footer to use this feature. If the group has a player online in one of the VisibleGroups, it will use the online, otherwise it will use the offline.
+# Set "staff-status" on the scoreboard footer to use this feature.
+# If the group has a player online in one of the VisibleGroups, it will use the online, otherwise it will use the offline.
+staff-status:
   online:
     - ''
     - '&e⎧ If you need help'

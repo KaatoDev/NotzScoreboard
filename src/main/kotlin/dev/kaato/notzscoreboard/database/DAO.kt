@@ -1,8 +1,8 @@
 package dev.kaato.notzscoreboard.database
 
-import dev.kaato.notzapi.utils.MessageU.Companion.log
 import dev.kaato.notzscoreboard.NotzScoreboard.Companion.cf
 import dev.kaato.notzscoreboard.NotzScoreboard.Companion.pathRaw
+import dev.kaato.notzscoreboard.utils.MessageUtil.log
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -16,8 +16,8 @@ class DAO {
     private val port = cf.config.getString("mysql.port")
     private val mysqlDB = cf.config.getString("mysql.database")
     private val database = if (useMysql) "//$host:$port/${mysqlDB}" else "$pathRaw/notzscoreboard.db"
-    private val user = cf.config.getString("mysql.user")?:""
-    private val password = cf.config.getString("mysql.password")?:""
+    private val user = cf.config.getString("mysql.user") ?: ""
+    private val password = cf.config.getString("mysql.password") ?: ""
 
     fun init() {
         try {
@@ -26,7 +26,7 @@ class DAO {
             db = if (useMysql) Database.connect("jdbc:$sql:$database", "com.mysql.cj.jdbc.Driver", user, password) else Database.connect("jdbc:$sql:$database", "org.sqlite.JDBC")
 
             transaction {
-                SchemaUtils.create(Scoreboards, Players)
+                SchemaUtils.createMissingTablesAndColumns(Scoreboards)
             }
 
             log("&aSuccessfully initialized Database!")

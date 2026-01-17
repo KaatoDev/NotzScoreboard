@@ -6,3 +6,5 @@ mysql:
   database: 'db_notzscoreboardv3'
   user: 'root'
   password: ''
+
+version: 1.1

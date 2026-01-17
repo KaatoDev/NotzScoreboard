@@ -17,16 +17,7 @@ object Scoreboards : Table("scoreboards") {
     @NotNull val template = varchar("template",max_varchar).default("player")
     @NotNull val footer = varchar("footer",max_varchar).default("staff-status")
     @NotNull val visibleGroups = text("visibleGroups").default("[]")
-    @NotNull val created = datetime("created").defaultExpression(CurrentDateTime)
-    @NotNull val updated = datetime("updated").nullable()
-}
-
-object Players : Table("notzplayers") {
-    @NotNull val id = integer("id").autoIncrement()
-    override val primaryKey = PrimaryKey(id)
-    @NotNull val name = varchar("name",max_varchar)
-    @NotNull val playerUuid = uuid("playeruuid").uniqueIndex()
-    @NotNull val scoreboardId = integer("scoreboardid").default(0)
+    @NotNull val players = text("players").default("[]")
     @NotNull val created = datetime("created").defaultExpression(CurrentDateTime)
     @NotNull val updated = datetime("updated").nullable()
 }
