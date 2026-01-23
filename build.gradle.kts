@@ -9,7 +9,6 @@ version = "3.4-pre2"
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven("https://repo.papermc.io/repository/maven-public/") {
         name = "papermc-repo"
     }
