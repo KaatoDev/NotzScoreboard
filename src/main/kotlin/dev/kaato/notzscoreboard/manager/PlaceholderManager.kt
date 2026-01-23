@@ -2,7 +2,9 @@ package dev.kaato.notzscoreboard.manager
 
 import dev.kaato.notzscoreboard.NotzScoreboard.Companion.msgf
 import dev.kaato.notzscoreboard.NotzScoreboard.Companion.sf
-import dev.kaato.notzscoreboard.utils.MessageUtil.formatMoney
+import dev.kaato.notzscoreboard.manager.AnimationManager.getAnimation
+import dev.kaato.notzscoreboard.manager.AnimationManager.hasAnimation
+import dev.kaato.notzscoreboard.utils.MessageUtil.set
 import me.clip.placeholderapi.PlaceholderAPI
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -27,17 +29,31 @@ object PlaceholderManager {
     }
 
     fun getPlaceholder(placeholder: String): String {
-        return placeholders[placeholder] ?: "[$placeholder]"
+        return if (placeholder.contains(":"))
+            placeholders[placeholder.split(":")[0]] ?: set(placeholder.split(":")[1])
+        else if (hasAnimation(placeholder))
+            getAnimation(placeholder)
+        else placeholders[placeholder] ?: "[$placeholder]"
     }
 
     fun getPlaceholder(placeholder: String, player: Player): String {
         return if (placeholder == "money")
             placeholderMoney(player)
-        else if (hasPlaceholder(placeholder)) getPlaceholder(placeholder) else  PlaceholderAPI.setPlaceholders(player, "%$placeholder%")
+        else if (placeholder.contains(":")) {
+            getPlaceholder(placeholder.split(":")[0], player).let {
+                if (it.contains("[") || it.contains("%") || it.isBlank())
+                    set(placeholder.split(":")[1])
+                else it
+            }
+        } else if (hasPlaceholder(placeholder)) getPlaceholder(placeholder) else PlaceholderAPI.setPlaceholders(player, "%$placeholder%")
+    }
+
+    fun hasPlaceholderRegex(placeholder: String): Boolean {
+        return placeholder.contains(placeholderRegex)
     }
 
     fun hasPlaceholder(placeholder: String): Boolean {
-        return placeholder.contains(placeholderRegex)
+        return placeholders.contains(placeholder)
     }
 
     fun placeholderMoney(player: Player): String {

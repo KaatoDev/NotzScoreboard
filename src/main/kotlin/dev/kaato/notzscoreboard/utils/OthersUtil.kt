@@ -1,7 +1,9 @@
 package dev.kaato.notzscoreboard.utils
 
+import com.viaversion.viaversion.api.Via
 import dev.kaato.notzscoreboard.utils.MessageUtil.send
 import org.bukkit.entity.Player
+import java.util.*
 
 object OthersUtil {
     fun hasPermission(player: Player, permission: String): Boolean = player.hasPermission("notzscoreboard.$permission")
@@ -15,4 +17,6 @@ object OthersUtil {
         if (isntAdmin) send(player, "no-perm")
         return isntAdmin
     }
+
+    fun dump() = println(Thread.dumpStack())
 }

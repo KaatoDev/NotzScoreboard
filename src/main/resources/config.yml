@@ -3,8 +3,8 @@ useMySQL: false
 mysql:
   host: 'localhost'
   port: '3306'
-  database: 'db_notzscoreboardv3'
+  database: 'db_notzscoreboard'
   user: 'root'
   password: ''
 
-version: 1.1
+version: 1

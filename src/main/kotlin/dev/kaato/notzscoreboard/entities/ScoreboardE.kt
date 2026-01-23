@@ -8,21 +8,23 @@ import dev.kaato.notzscoreboard.database.DatabaseManager.deleteScoreboardDB
 import dev.kaato.notzscoreboard.database.DatabaseManager.getScoreboardDB
 import dev.kaato.notzscoreboard.database.DatabaseManager.insertScoreboardDB
 import dev.kaato.notzscoreboard.database.DatabaseManager.updateScoreboardDB
+import dev.kaato.notzscoreboard.manager.MessageManager.getMessage
 import dev.kaato.notzscoreboard.manager.PlaceholderManager.addPlaceholder
 import dev.kaato.notzscoreboard.manager.PlaceholderManager.getPlaceholder
-import dev.kaato.notzscoreboard.manager.PlaceholderManager.hasPlaceholder
 import dev.kaato.notzscoreboard.manager.PlaceholderManager.placeholderRegex
+import dev.kaato.notzscoreboard.manager.PlayerManager.checkPlayerVersion
 import dev.kaato.notzscoreboard.manager.ScoreboardManager
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.checkVisibleGroups
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.default_group
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.getPlayerFromGroup
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.getPlayersFromGroups
-import dev.kaato.notzscoreboard.manager.ScoreboardManager.scoreboards
 import dev.kaato.notzscoreboard.utils.MessageUtil.c
-import dev.kaato.notzscoreboard.utils.MessageUtil.getMessage
+import dev.kaato.notzscoreboard.utils.MessageUtil.join
 import dev.kaato.notzscoreboard.utils.MessageUtil.log
 import dev.kaato.notzscoreboard.utils.MessageUtil.set
 import io.papermc.paper.scoreboard.numbers.NumberFormat
+import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
@@ -85,7 +87,8 @@ class ScoreboardE(val id: Int) {
 
     fun start() {
         updateLines()
-        players.filter { Bukkit.getPlayer(it)?.isOnline ?: false }.forEach(this::addOnlinePlayer)
+        updatePlaceholder()
+//        players.filter { Bukkit.getPlayer(it)?.isOnline ?: false }.forEach(this::addOnlinePlayer)
     }
 
     fun containsPlayer(playerUUID: UUID): Boolean = players.contains(playerUUID)
@@ -195,8 +198,7 @@ class ScoreboardE(val id: Int) {
 
     private fun addOnlinePlayer(playerUUID: UUID): Boolean {
         return if (!onlinePlayers.contains(playerUUID)) {
-            if (onlinePlayers.isEmpty())
-                runTask()
+            if (onlinePlayers.isEmpty()) runTask()
 
             onlinePlayers.add(playerUUID)
             updatePlaceholder()
@@ -231,7 +233,7 @@ class ScoreboardE(val id: Int) {
         return remOnlinePlayer(playerUUID)
     }
 
-    private fun remOnlinePlayer(playerUUID: UUID): Boolean {
+    fun remOnlinePlayer(playerUUID: UUID): Boolean {
         return if (onlinePlayers.contains(playerUUID)) {
             onlinePlayers.remove(playerUUID)
 
@@ -266,16 +268,14 @@ class ScoreboardE(val id: Int) {
 
     /** Call the updatePlayer() method for each player. */
     fun updatePlayers() {
-        if (onlinePlayers.isNotEmpty())
-            onlinePlayers.forEach(::updatePlayer)
+        if (onlinePlayers.isNotEmpty()) onlinePlayers.forEach(::updatePlayer)
     }
 
     /** Update the players' scoreboard or create a new scoreboard if necessary */
     private fun updatePlayer(playerUUID: UUID) {
         Bukkit.getPlayer(playerUUID).let {
             if (it == null) return@let
-            if (it.scoreboard.getObjective(name) == null)
-                scoreboardCreate(it)
+            if (it.scoreboard.getObjective(name) == null) scoreboardCreate(it)
             scoreboardUpdate(it)
         }
 
@@ -286,6 +286,10 @@ class ScoreboardE(val id: Int) {
         if (header.isNotBlank()) lines.addAll(ScoreboardManager.getTemplate(header, visibleGroups))
         if (template.isNotBlank()) lines.addAll(ScoreboardManager.getTemplate(template, visibleGroups))
         if (footer.isNotBlank()) lines.addAll(ScoreboardManager.getTemplate(footer, visibleGroups))
+        lines = lines.map {
+            if (it.isNotEmpty() && it[0] != '&' && it[0] != '<') "$color$it"
+            else it
+        }.toMutableList()
     }
 
     // updaters - end
@@ -295,25 +299,45 @@ class ScoreboardE(val id: Int) {
     /** Sets the scoreboard on the player */
     private fun scoreboardCreate(player: Player) {
         val scoreboard = Bukkit.getScoreboardManager().newScoreboard
-        val objective = scoreboard.registerNewObjective(name, Criteria.DUMMY, c(getPlaceholder("title")))
-
+        val objective = scoreboard.registerNewObjective(name, Criteria.DUMMY, c(set(getPlaceholder("title"))))
+        
         objective.numberFormat(NumberFormat.blank())
         objective.displaySlot = DisplaySlot.SIDEBAR
 
         lines.forEachIndexed { i, line ->
             val index = lines.size - i - 1
-            val entry = ChatColor.entries[index].toString()
+            var entry = ChatColor.entries[index].toString()
 
             val team = scoreboard.registerNewTeam("line_$index")
-            team.addEntry(entry)
 
             var prefix = line
 
-            if (hasPlaceholder(line)) {
-                prefix = set(line, player)
-                suffixLines[team.name] = prefix
+//            if (hasPlaceholderRegex(prefix)) {
+            if (line.contains(":")) {
+//                prefix = line.replace(placeholderRegex, "")
+//                val suffix = line.replace(prefix, "")
+                var suffix: String
+                if (line.contains("::")) {
+                    prefix = line.split("::")[0]
+                    suffix = line.split("::")[1]
+                } else {
+                    prefix = line.split(":")[0] + ":"
+                    suffix = join(line.split(":"), ":").substring(prefix.length)
+                }
+
+                suffixLines[team.name] = suffix
             }
 
+            prefix = set(prefix, player)
+
+            if (checkPlayerVersion(player.uniqueId)) {
+                prefix = LegacyComponentSerializer.legacySection().serialize(c(set(prefix)))
+                if (prefix.length > 16 && checkPlayerVersion(player.uniqueId)) 
+                    entry = prefix.substring(16)
+                
+            }
+
+            team.addEntry(entry)
             team.prefix(c(prefix))
             objective.getScore(entry).score = index
         }
@@ -330,28 +354,22 @@ class ScoreboardE(val id: Int) {
         suffixLines.forEach {
             val suffix = it.value.replace(placeholderRegex) { placeholders ->
                 when (val placeholder = placeholders.groupValues[1]) {
-                    "staff" ->
-                        staffLine("{staff}")
+                    "staff", "supstaff" -> staffLine(placeholder)
 
-                    "supstaff" ->
-                        staffLine("{supstaff}")
+                    "staff_list" -> staffsLine().toString()
 
-                    "staff_list" ->
-                        staffsLine().toString()
+                    "player_list" -> getPlayersFromGroups(listOf(default_group)).size.toString()
 
-                    "player_list" ->
-                        scoreboards[default_group]!!.getOnlinePlayers().size.toString()
-
-                    else -> "{${placeholder}}"
+                    else -> placeholders.groupValues[0]
                 }
             }
 
-            player.scoreboard.getTeam(it.key)?.prefix(c(suffix))
+            player.scoreboard.getTeam(it.key)?.suffix(c(set(suffix, player)))
         }
 
-        if (player.scoreboard.getTeam("line_${lines.size}") != null) {
-            player.scoreboard.getTeam("line_${lines.size}")!!.prefix(c("ScoreboardE_line-338-ish"))
-        }
+//        if (player.scoreboard.getTeam("line_${lines.size}") != null) {
+//            player.scoreboard.getTeam("line_${lines.size}")!!.prefix(c("ScoreboardE_line-338-ish"))
+//        }
     }
 
     // scoreboard - end
@@ -360,8 +378,8 @@ class ScoreboardE(val id: Int) {
 
     /** @return Return the {staff} placeholder of this scoreboard. */
     private fun staffLine(placeholder: String): String {
-        return if (checkVisibleGroups(visibleGroups)) {
-            if (placeholder == "{staff}") getMessage("status.staff")
+        return if (!checkVisibleGroups(visibleGroups)) {
+            if (placeholder == "staff") getMessage("status.staff")
             else getMessage("status.supstaff")
         } else getPlayerFromGroup(visibleGroups)
     }
@@ -407,8 +425,7 @@ class ScoreboardE(val id: Int) {
 
     /** Cancel the self-update scoreboard task */
     fun tryToCancelTask() {
-        if (onlinePlayers.isEmpty() && isntDefault && task != null)
-            task!!.cancel()
+        if (onlinePlayers.isEmpty() && isntDefault && task != null) task!!.cancel()
     }
 
     fun forceCancelTask() {

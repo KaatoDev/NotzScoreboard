@@ -1,8 +1,9 @@
 package dev.kaato.notzscoreboard.utils
 
-import dev.kaato.notzscoreboard.NotzScoreboard.Companion.msgf
 import dev.kaato.notzscoreboard.NotzScoreboard.Companion.prefix
+import dev.kaato.notzscoreboard.manager.MessageManager.getMessage
 import dev.kaato.notzscoreboard.manager.PlaceholderManager.getPlaceholder
+import dev.kaato.notzscoreboard.manager.PlaceholderManager.hasPlaceholderRegex
 import dev.kaato.notzscoreboard.manager.PlaceholderManager.placeholderRegex
 import dev.kaato.notzscoreboard.utils.OthersUtil.isAdmin
 import net.kyori.adventure.text.Component
@@ -19,7 +20,8 @@ object MessageUtil {
 
     fun log(message: String, sender: ConsoleCommandSender? = null) {
         val console = sender ?: Bukkit.getConsoleSender()
-        console.sendMessage(c(message))
+        val msg = set("$prefix $message")
+        console.sendMessage(c(msg))
     }
 
     fun sendAdmin(message: String) {
@@ -177,11 +179,7 @@ object MessageUtil {
     )
 
     fun prepareMessage(player: Player, message: String, default: String? = null, defaults: List<String> = listOf()): String {
-        val path = "messages.$message"
-
-        val msg = if (message.isNotBlank() && message != " " && msgf.config.contains(path)) {
-            msgf.config.getString(path) ?: ""
-        } else message
+        val msg = getMessage(message)
 
         return set(msg, player, default, defaults)
     }
@@ -207,20 +205,14 @@ object MessageUtil {
     fun set(text: String, player: Player? = null, default: String? = null, defaults: List<String> = listOf()): String {
         var txt = text
 
-        if (txt.contains(placeholderRegex)) txt = replacePlaceholders(txt, player)
-
         if ((default != null || defaults.isNotEmpty()) && txt.contains(defaultsRegex)) txt = replaceDefaults(txt, default, defaults)
 
+        if (hasPlaceholderRegex(txt)) txt = replacePlaceholders(txt, player)
+
         return txt
     }
 
-    fun replacePlaceholders(text: String): String {
-        var txt = text
-        txt = txt.replace(placeholderRegex, getPlaceholder(text) ?: "[$1]")
-        return txt
-    }
-
-    fun replacePlaceholders(text: String, player: Player?): String {
+    fun replacePlaceholders(text: String, player: Player? = null): String {
         var txt = text
         txt = txt.replace(placeholderRegex) {
             if (player != null) getPlaceholder(it.groupValues[1], player)
@@ -235,11 +227,6 @@ object MessageUtil {
             default ?: it.groupValues[1].toInt().let { index -> if (defaults.size > index) defaults[index] else "[default$index]" }
         }
         return txt
-    }
-
-    fun getMessage(path: String = ""): String {
-        return msgf.get().getString(path) ?: path
-//        return getMessage(path, customPath)
     }
 
     fun letters() {

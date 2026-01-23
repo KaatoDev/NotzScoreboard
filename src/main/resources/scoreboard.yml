@@ -1,4 +1,13 @@
-title: '&7-[ &5&lNotz &f&lNework &7]-'
+#
+#
+#
+# YOU CAN USE IT WITH VIAVERSION, BUT:
+# CLIENTS LOWER THAN 1.20.3 SUPPORTS ONLY 16 CHARS IN PREFIX* AND 16 IN SUFFIX,
+# SCOREBOARD TITLES ARE MAX 32 CHARS TOO!!!
+# * -> Prefix can handle 32 chars (with entry), but stay warned that COLOR CODE still counts as chars 
+#
+#
+title: '&7-[ &f&lNotz &2&lScoreboard &7]-'
 
 # Create custom or default placeholders. You can put a PlaceholderAPI placeholder like 'simpleclans_tag_label' (without the %).
 # It doesn't matter if you put a placeholder with {} or %%!
@@ -32,8 +41,8 @@ templates:
       - '&2⎧ &aMoney&f: {money}'
       - '&2⎩ &aCash&f: {cash}'
       - ''
-      - '&5⎧ &dClan&f: %simpleclans_tag_label%'
-      - '&5⎩ &dKDR&f: %simpleclans_clan_total_kdr%'
+      - '&5⎧ &dClan&f: {simpleclans_clan_color_tag:&7No clan}'
+      - '&5⎩ &dKDR&f: {simpleclans_kdr:0.0}'
   - staff:
       - ''
       - '⎧ &6Online staff&f: {staff_list}'

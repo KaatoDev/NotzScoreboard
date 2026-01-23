@@ -45,7 +45,7 @@ object ScoreboardManager {
     fun unregisterPlayerFromScoreboard(player: Player): Boolean {
         return (scoreboards.values.find { it.getOnlinePlayers().contains(player.uniqueId) }?.let {
             scoreboardsPlayers[it.name]?.remove(player.name)
-            it.remPlayer(player.uniqueId)
+            it.remOnlinePlayer(player.uniqueId)
         }) ?: false
     }
 
@@ -98,7 +98,6 @@ object ScoreboardManager {
         return if (scoreboard.addPlayer(player.uniqueId)) {
             remPlayerFromExcept(player, scoreboard.name)
             scoreboardsPlayers[scoreboard.name]?.add(player.name)
-
             true
         } else false
     }
@@ -187,7 +186,7 @@ object ScoreboardManager {
 // -------------------
 // loaders - start
 
-    fun load() {
+    fun loadScoreboardManager() {
         default_group = sf.config.getString("default-group") ?: ""
         arrayOf("low", "medium", "high").forEach { priorityList[it] = PriorityClass(null, sf.config.getLong("priority-time.$it") * 20) }
         val templatesConfig = sf.config.getMapList("templates")

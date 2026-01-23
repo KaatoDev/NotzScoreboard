@@ -19,10 +19,10 @@ import dev.kaato.notzscoreboard.manager.CommandsManager.setDisplayCMD
 import dev.kaato.notzscoreboard.manager.CommandsManager.setTemplateCMD
 import dev.kaato.notzscoreboard.manager.CommandsManager.updateAllScoreboardsCMD
 import dev.kaato.notzscoreboard.manager.CommandsManager.viewScoreboardCMD
+import dev.kaato.notzscoreboard.manager.MessageManager.getMessage
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.default_group
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.scoreboards
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.scoreboardsPlayers
-import dev.kaato.notzscoreboard.utils.MessageUtil.getMessage
 import dev.kaato.notzscoreboard.utils.MessageUtil.send
 import dev.kaato.notzscoreboard.utils.MessageUtil.sendHeader
 import dev.kaato.notzscoreboard.utils.OthersUtil.isntAdmin
@@ -97,7 +97,7 @@ class NScoreboardC : TabExecutor {
         val scoreboard = if (a.isNotEmpty()) scoreboards.containsKey(a[0]) else false
 
         return when (a.size) {
-            1 -> arrayOf("create", "delete", "list", "players", "reload", "reset", "set", "update").filter { it.contains(a[0]) }.toMutableList()
+            1 -> arrayOf("create", "delete", "list", "players", "reset", "set", "update").filter { it.contains(a[0]) }.toMutableList()
 
             2 -> if (scoreboard) arrayOf("addplayer", "addgroup", "clearheader", "clearfooter", "cleartemplate", "pause", "players", "remplayer", "remgroup", "setcolor", "setdisplay", "setheader", "setfooter", "settemplate", "view", "visiblegroups").filter { it.contains(a[1]) }.toMutableList() else when (a[0]) {
                 "create" -> mutableListOf("<name>")
@@ -141,7 +141,6 @@ class NScoreboardC : TabExecutor {
                 &7+ &edelete &f<&escoreboard&f> &7- ${getMessage("commands.delete")}
                 &7+ &elist &7- ${getMessage("commands.list")}
                 &7+ &eplayers &7- ${getMessage("commands.players")}
-                &7+ &ereload &7- ${getMessage("commands.reload")}
                 &7+ &ereset &f<&eplayer&f> &7- ${getMessage("commands.reset")}
                 &7+ &eset &f<&escoreboard&f> &7- ${getMessage("commands.set")}
                 &7+ &eupdate &7- ${getMessage("commands.update")}

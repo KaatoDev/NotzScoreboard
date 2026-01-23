@@ -31,7 +31,7 @@ class NotzYAML(private val fileName: String) {
             config.options().copyDefaults(true)
         }
         val version = config.getInt("version", 0)
-        if (version < 1.1) {
+        if (version != 1) {
             backupOldConfig(version)
         }
         save()
