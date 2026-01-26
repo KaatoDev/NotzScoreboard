@@ -8,9 +8,12 @@ import dev.kaato.notzscoreboard.database.DatabaseManager.deleteScoreboardDB
 import dev.kaato.notzscoreboard.database.DatabaseManager.getScoreboardDB
 import dev.kaato.notzscoreboard.database.DatabaseManager.insertScoreboardDB
 import dev.kaato.notzscoreboard.database.DatabaseManager.updateScoreboardDB
+import dev.kaato.notzscoreboard.manager.AnimationManager.getAnimation
+import dev.kaato.notzscoreboard.manager.AnimationManager.hasAnimation
 import dev.kaato.notzscoreboard.manager.MessageManager.getMessage
 import dev.kaato.notzscoreboard.manager.PlaceholderManager.addPlaceholder
 import dev.kaato.notzscoreboard.manager.PlaceholderManager.getPlaceholder
+import dev.kaato.notzscoreboard.manager.PlaceholderManager.hasPlaceholderRegex
 import dev.kaato.notzscoreboard.manager.PlaceholderManager.placeholderRegex
 import dev.kaato.notzscoreboard.manager.PlayerManager.checkPlayerVersion
 import dev.kaato.notzscoreboard.manager.ScoreboardManager
@@ -18,12 +21,13 @@ import dev.kaato.notzscoreboard.manager.ScoreboardManager.checkVisibleGroups
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.default_group
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.getPlayerFromGroup
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.getPlayersFromGroups
+import dev.kaato.notzscoreboard.manager.ScoreboardManager.getStaffStatus
+import dev.kaato.notzscoreboard.manager.ScoreboardManager.multilineTime
 import dev.kaato.notzscoreboard.utils.MessageUtil.c
 import dev.kaato.notzscoreboard.utils.MessageUtil.join
 import dev.kaato.notzscoreboard.utils.MessageUtil.log
 import dev.kaato.notzscoreboard.utils.MessageUtil.set
 import io.papermc.paper.scoreboard.numbers.NumberFormat
-import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
@@ -68,6 +72,10 @@ class ScoreboardE(val id: Int) {
     private var onlinePlayers = mutableListOf<UUID>()
     private var isntDefault = true
     private var task: BukkitTask? = null
+    private val multilineRegex = Regex("""--(-?)(.*?)""")
+    private val multilines = hashMapOf<String, MutableList<String>>()
+    private val multilinesInterval = hashMapOf<String, Int>()
+    private val animatedLines = hashMapOf<String, String>()
 
     init {
         val sb = getScoreboardDB(id)
@@ -143,8 +151,8 @@ class ScoreboardE(val id: Int) {
     }
 
     /** Set the scoreboard on a player (use to view the scoreboard) */
-    fun getScoreboard(player: Player) {
-        scoreboardCreate(player)
+    fun getScoreboard(playerUUID: UUID) {
+        updatePlayer(playerUUID)
     }
 
 
@@ -276,20 +284,47 @@ class ScoreboardE(val id: Int) {
         Bukkit.getPlayer(playerUUID).let {
             if (it == null) return@let
             if (it.scoreboard.getObjective(name) == null) scoreboardCreate(it)
+            else if (footer == "staff-status" && !lines.containsAll(getStaffStatus(visibleGroups))) {
+                updateLines()
+                scoreboardCreate(it)
+            }
             scoreboardUpdate(it)
         }
-
     }
 
     fun updateLines() {
-        lines = mutableListOf()
+        lines.clear()
+        multilines.clear()
+        suffixLines.clear()
+        val removeLines = mutableListOf<String>()
+
         if (header.isNotBlank()) lines.addAll(ScoreboardManager.getTemplate(header, visibleGroups))
         if (template.isNotBlank()) lines.addAll(ScoreboardManager.getTemplate(template, visibleGroups))
         if (footer.isNotBlank()) lines.addAll(ScoreboardManager.getTemplate(footer, visibleGroups))
+
         lines = lines.map {
-            if (it.isNotEmpty() && it[0] != '&' && it[0] != '<') "$color$it"
+            if (it.contains(multilineRegex)) {
+                val newLine = multilineRegex.replace(it, "")
+                val ml = it.replace(newLine, "")
+
+                if (multilines[ml].isNullOrEmpty()) {
+                    multilines[ml] = mutableListOf(color + newLine)
+                    ml
+                } else {
+                    multilines[ml]!!.add(color + newLine)
+                    removeLines.add(it)
+                    it
+                }
+
+            } else if (it.isNotEmpty() && it[0] != '&' && it[0] != '<') "$color$it"
             else it
         }.toMutableList()
+
+        lines.removeAll(removeLines)
+    }
+
+    fun updateMultilines() {
+
     }
 
     // updaters - end
@@ -299,8 +334,10 @@ class ScoreboardE(val id: Int) {
     /** Sets the scoreboard on the player */
     private fun scoreboardCreate(player: Player) {
         val scoreboard = Bukkit.getScoreboardManager().newScoreboard
+        if (hasAnimation(placeholderRegex.replace(getPlaceholder("title")) { it.groupValues[1] }))
+            animatedLines["title"] = placeholderRegex.replace(getPlaceholder("title")) { it.groupValues[1] }
         val objective = scoreboard.registerNewObjective(name, Criteria.DUMMY, c(set(getPlaceholder("title"))))
-        
+
         objective.numberFormat(NumberFormat.blank())
         objective.displaySlot = DisplaySlot.SIDEBAR
 
@@ -312,17 +349,22 @@ class ScoreboardE(val id: Int) {
 
             var prefix = line
 
-//            if (hasPlaceholderRegex(prefix)) {
-            if (line.contains(":")) {
-//                prefix = line.replace(placeholderRegex, "")
-//                val suffix = line.replace(prefix, "")
+            if (line.contains(multilineRegex)) {
+                multilinesInterval[line] = multilineTime + 1
+                suffixLines[team.name] = line
+
+            } else if (line.contains(":") || hasPlaceholderRegex(line)) {
                 var suffix: String
+
                 if (line.contains("::")) {
                     prefix = line.split("::")[0]
                     suffix = line.split("::")[1]
-                } else {
+                } else if (line.contains(":")) {
                     prefix = line.split(":")[0] + ":"
                     suffix = join(line.split(":"), ":").substring(prefix.length)
+                } else {
+                    prefix = line.replace(placeholderRegex, "")
+                    suffix = line.replace(prefix, "")
                 }
 
                 suffixLines[team.name] = suffix
@@ -332,9 +374,9 @@ class ScoreboardE(val id: Int) {
 
             if (checkPlayerVersion(player.uniqueId)) {
                 prefix = LegacyComponentSerializer.legacySection().serialize(c(set(prefix)))
-                if (prefix.length > 16 && checkPlayerVersion(player.uniqueId)) 
-                    entry = prefix.substring(16)
-                
+                if (prefix.length > 16 && checkPlayerVersion(player.uniqueId)) entry = prefix.substring(16)
+                entry += ChatColor.WHITE
+
             }
 
             team.addEntry(entry)
@@ -352,7 +394,48 @@ class ScoreboardE(val id: Int) {
     /** Updates the player's scoreboard. */
     private fun scoreboardUpdate(player: Player) {
         suffixLines.forEach {
-            val suffix = it.value.replace(placeholderRegex) { placeholders ->
+            var suffix = it.value
+            val team = player.scoreboard.getTeam(it.key)
+
+            if (it.value.contains(multilineRegex)) {
+                if (multilinesInterval[it.value]!! >= multilineTime) {
+                    multilinesInterval[it.value] = 0
+
+                    val newLine = multilines[it.value]?.random() ?: it.value
+                    var prefix = newLine
+
+                    if (newLine.contains(":") || hasPlaceholderRegex(newLine)) {
+                        if (newLine.contains("::")) {
+                            prefix = newLine.split("::")[0]
+                            suffix = newLine.split("::")[1]
+                        } else if (newLine.contains(":")) {
+                            prefix = newLine.split(":")[0] + ":"
+                            suffix = join(newLine.split(":"), ":").substring(prefix.length)
+                        } else {
+                            prefix = newLine.replace(placeholderRegex, "")
+                            suffix = newLine.replace(prefix, "")
+                        }
+                    }
+
+                    prefix = set(prefix, player)
+
+                    if (checkPlayerVersion(player.uniqueId)) {
+                        prefix = LegacyComponentSerializer.legacySection().serialize(c(set(prefix)))
+                        if (prefix.length > 16 && checkPlayerVersion(player.uniqueId)) {
+                            team?.entries?.forEach { et -> team.removeEntry(et) }
+                            team?.addEntry(prefix.substring(16))
+                        }
+                    }
+                    team?.prefix(c(prefix))
+                } else {
+                    multilinesInterval[it.value] = multilinesInterval[it.value]!! + 1
+                    return@forEach
+                }
+            }
+
+            var doReturn = false
+
+            suffix = suffix.replace(placeholderRegex) { placeholders ->
                 when (val placeholder = placeholders.groupValues[1]) {
                     "staff", "supstaff" -> staffLine(placeholder)
 
@@ -360,16 +443,40 @@ class ScoreboardE(val id: Int) {
 
                     "player_list" -> getPlayersFromGroups(listOf(default_group)).size.toString()
 
-                    else -> placeholders.groupValues[0]
+                    else -> {
+                        if (hasAnimation(placeholder)) {
+                            if (!animatedLines.containsKey(it.key))
+                                animatedLines[it.key] = placeholder
+                            doReturn = true
+                            ""
+                        } else placeholders.groupValues[0]
+                    }
                 }
             }
-
-            player.scoreboard.getTeam(it.key)?.suffix(c(set(suffix, player)))
+            if (doReturn) return@forEach
+            team?.suffix(c(set(suffix, player)))
         }
 
 //        if (player.scoreboard.getTeam("line_${lines.size}") != null) {
 //            player.scoreboard.getTeam("line_${lines.size}")!!.prefix(c("ScoreboardE_line-338-ish"))
 //        }
+    }
+
+    fun animatePlayers() {
+        animatedLines.forEach { (key, value) ->
+            val suffix = getAnimation(value)
+            val title = key == "title"
+            onlinePlayers.forEach {
+                Bukkit.getPlayer(it).let { player ->
+                    if (title) {
+                        player?.scoreboard?.getObjective(name)?.displayName(c(suffix))
+                    } else {
+                        val team = player?.scoreboard?.getTeam(key)
+                        team?.suffix(c(suffix))
+                    }
+                }
+            }
+        }
     }
 
     // scoreboard - end

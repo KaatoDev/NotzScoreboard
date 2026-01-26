@@ -140,7 +140,7 @@ object MessageUtil {
     val prideRegex = Regex("""&p(\[(.*?)])?(.*?)(?=$END_REGEX)""")
     val gradientRegexSimple = Regex("""&g([0-9a-fA-F]{2,})(.*?)(?=$END_REGEX)""")
     val rainbowRegex = Regex("""&!(!?[0-9]?)(.*?)(?=$END_REGEX)""")
-    val defaultsRegex = Regex("""\{default([0-9])}""")
+    val defaultsRegex = Regex("""\{default([0-9])?}""")
 
     val colorsDeco = hashMapOf(
         '1' to "dark_blue",

@@ -1,5 +1,5 @@
 name: NotzScoreboard
-version: '4.0-pre3'
+version: '4.0-pre4'
 main: dev.kaato.notzscoreboard.NotzScoreboard
 api-version: '1.21'
 prefix: NotzScoreboard

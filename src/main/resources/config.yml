@@ -7,4 +7,5 @@ mysql:
   user: 'root'
   password: ''
 
-version: 1
+## Do not change this
+version: 1  

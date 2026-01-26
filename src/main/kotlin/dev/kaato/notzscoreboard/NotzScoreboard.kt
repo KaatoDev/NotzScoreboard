@@ -9,6 +9,7 @@ import dev.kaato.notzscoreboard.manager.AnimationManager.loadAnimations
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.loadScoreboardManager
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.shutdown
 import dev.kaato.notzscoreboard.utils.MessageUtil.letters
+import dev.kaato.notzscoreboard.utils.MessageUtil.log
 import dev.kaato.notzscoreboard.utils.MessageUtil.sendAdmin
 import dev.kaato.notzscoreboard.utils.MessageUtil.set
 import org.bstats.bukkit.Metrics
@@ -43,8 +44,13 @@ class NotzScoreboard : JavaPlugin() {
             sf = NotzYAML("scoreboard")
             msgf = NotzYAML("messages")
             prefix = set("{prefix}")
+
             if (getPluginManager().getPlugin("ViaVersion") != null)
-                hasViaVersion = Via.getManager().isInitialized
+                try {
+                    hasViaVersion = Via.getManager().isInitialized
+                } catch (e: IllegalArgumentException) {
+                    log("ViaVersion detected, but not responding correctly. Try updating ViaVersion.")
+                }
 
             try {
                 dao = DAO()

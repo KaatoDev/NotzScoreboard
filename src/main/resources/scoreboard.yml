@@ -6,7 +6,6 @@
 # SCOREBOARD TITLES ARE MAX 32 CHARS TOO!!!
 # * -> Prefix can handle 32 chars (with entry), but stay warned that COLOR CODE still counts as chars 
 #
-#
 title: '&7-[ &f&lNotz &2&lScoreboard &7]-'
 
 # Create custom or default placeholders. You can put a PlaceholderAPI placeholder like 'simpleclans_tag_label' (without the %).
@@ -19,6 +18,13 @@ placeholders: # All placeholders included here will need to be replaced with {} 
   - clan_tag: "&7No clan."
   - clankdr: "&7No KDR."
 
+# Multiplier time in which multilines will be updated.
+# [multiline-time * priority-time]
+multiline-time: 3
+
+# Animation ticksss
+animation-interval: 2
+
 # The 'player' group is set by default, edit the template, header and footer for it.
 # If there is no attribute set in the 'scoreboard' area for a group, it will be set the default (player).
 default-group: 'player'
@@ -27,7 +33,8 @@ priority-time: # in seconds | default is 20 seconds
   manager: 1
   player: 5
 
-# Prefix: before placeholder - Suffix: placeholder.
+# Multiline separator: --(...), use -- or more hyphens to distinguish lines.
+# Prefix and Suffix separators: placeholder (suffix), : (separate and keep it), :: (separate only).
 # The prefix max length is 38 and the suffix is 16.
 # It doesn't matter if you put a placeholder with {} or %%!
 templates:

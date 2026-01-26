@@ -69,7 +69,7 @@ object AnimationManager {
 
         return lines
     }
-    
+
     fun loadAnimations() {
         val normalList = af.get().getMapList("normal")
         val autoList = af.get().getMapList("auto")

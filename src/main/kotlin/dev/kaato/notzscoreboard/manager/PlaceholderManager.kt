@@ -31,8 +31,6 @@ object PlaceholderManager {
     fun getPlaceholder(placeholder: String): String {
         return if (placeholder.contains(":"))
             placeholders[placeholder.split(":")[0]] ?: set(placeholder.split(":")[1])
-        else if (hasAnimation(placeholder))
-            getAnimation(placeholder)
         else placeholders[placeholder] ?: "[$placeholder]"
     }
 

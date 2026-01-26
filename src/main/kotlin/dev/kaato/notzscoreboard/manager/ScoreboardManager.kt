@@ -1,10 +1,12 @@
 package dev.kaato.notzscoreboard.manager
 
+import dev.kaato.notzscoreboard.NotzScoreboard.Companion.plugin
 import dev.kaato.notzscoreboard.NotzScoreboard.Companion.sf
 import dev.kaato.notzscoreboard.database.DatabaseManager.loadScoreboardsDB
 import dev.kaato.notzscoreboard.entities.ScoreboardE
 import dev.kaato.notzscoreboard.manager.PlayerManager.initializePlayers
 import org.bukkit.entity.Player
+import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.scheduler.BukkitTask
 import kotlin.random.Random
 
@@ -15,9 +17,10 @@ object ScoreboardManager {
     private val templates = hashMapOf<String, List<String>>()
     private val staffStatus = hashMapOf<Boolean, List<String>>()
     var default_group: String
-    private var priorityList = hashMapOf<String, PriorityClass>()
+    var multilineTime = 1
+    var animationTask: BukkitTask? = null
+    var animationInterval = 1L
 
-    data class PriorityClass(var task: BukkitTask?, var time: Long)
 
     // -------------------
 
@@ -28,7 +31,6 @@ object ScoreboardManager {
     // scoreboard - start
 
     fun getDefaultScoreboard(): ScoreboardE? = scoreboards.values.find { it.isDefault() }
-    fun getDefaultScoreboardId(): Int = getDefaultScoreboard()?.id ?: 0
 
     fun isBlacklisted(name: String): Boolean = blacklist.contains(name)
 
@@ -77,7 +79,7 @@ object ScoreboardManager {
 
     fun viewScoreboard(player: Player, scoreboard: String): Boolean {
         return if (scoreboards.contains(scoreboard)) {
-            scoreboards[scoreboard]!!.getScoreboard(player)
+            scoreboards[scoreboard]!!.getScoreboard(player.uniqueId)
             true
         } else false
     }
@@ -156,9 +158,13 @@ object ScoreboardManager {
         scoreboards.values.forEach { it.updatePlayers() }
     }
 
+    fun getStaffStatus(visibleGroups: List<String>): List<String> {
+        return staffStatus[checkVisibleGroups(visibleGroups)]!!
+    }
+
     fun getTemplate(template: String, visibleGroups: List<String>? = null): List<String> {
         return if (templates.containsKey(template)) templates[template]!!
-        else if (template == "staff-status" && visibleGroups != null) staffStatus[checkVisibleGroups(visibleGroups)]!!
+        else if (template == "staff-status" && visibleGroups != null) getStaffStatus(visibleGroups)
         else listOf(template)
     }
 
@@ -176,6 +182,9 @@ object ScoreboardManager {
     }
 
     fun shutdown() {
+        if (animationTask != null)
+            animationTask?.cancel()
+
         scoreboards.values.forEach {
             it.forceCancelTask()
             it.shutdownSB()
@@ -186,9 +195,20 @@ object ScoreboardManager {
 // -------------------
 // loaders - start
 
+    fun startAnimation() {
+        animationTask = object : BukkitRunnable() {
+            override fun run() {
+                scoreboards.values.forEach {
+                    it.animatePlayers()
+                }
+            }
+        }.runTaskTimer(plugin, 0, animationInterval)
+    }
+
     fun loadScoreboardManager() {
         default_group = sf.config.getString("default-group") ?: ""
-        arrayOf("low", "medium", "high").forEach { priorityList[it] = PriorityClass(null, sf.config.getLong("priority-time.$it") * 20) }
+        multilineTime = sf.config.getInt("multiline-time")
+        animationInterval = sf.config.getInt("animation-interval") * 1L
         val templatesConfig = sf.config.getMapList("templates")
 
         templatesConfig.forEach { map ->
@@ -206,12 +226,16 @@ object ScoreboardManager {
         staffStatus[false] = sf.config.getStringList("staff-status.offline")
 
         loadScoreboards()
+        startAnimation()
     }
 
     private fun loadScoreboards() {
         val scores = loadScoreboardsDB()
 
-        if (scores.isNotEmpty()) scores.forEach { scoreboards[it.name] = it }
+        if (scores.isNotEmpty()) scores.forEach {
+            scoreboards[it.name] = it
+            scoreboardsPlayers[it.name] = mutableListOf()
+        }
         else {
             createScoreboard("player", "&e&lPlayer")
             createScoreboard("helper", "&e&lHelper")
@@ -221,6 +245,7 @@ object ScoreboardManager {
             createScoreboard("manager", "&4&lManager")
             createScoreboard("owner", "&6&lOwner")
 
+            scoreboards["player"]?.addGroup(mutableListOf("helper", "trial"))
             scoreboards["helper"]?.setTemplate("", "player", "staff")
             scoreboards["helper"]?.addGroup(mutableListOf("helper", "trial", "mod"))
             scoreboards["helper"]?.setColor("&e")
