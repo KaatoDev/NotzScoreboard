@@ -1,5 +1,5 @@
 normal:
-  - title1:
+  - title_anim:
     - '&7-[ &f&lNotz &2&lScoreboard &7]-'
     - '&7[ &f&lNotz &2&lScoreboard &7]- '
     - ' &f&lNotz &2&lScoreboard &7]-  '
@@ -27,5 +27,6 @@ normal:
     - '  &7-[ &f&lNotz &2&lScoreboard '
     - ' &7-[ &f&lNotz &2&lScoreboard &7]'
 
+## not working properly with colors yet
 auto:
-  - title2: '&7-[ &f&lNotz &2&lScoreboard &7]-'
+  - title_auto: '&7-[ &f&lNotz &2&lScoreboard &7]-'

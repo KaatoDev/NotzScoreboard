@@ -30,7 +30,7 @@ messages:
   remGroupFrom1: '&eThe group {default0} &ehas been removed from the visible groups of &fscoreboard {default1}&e'
   remGroupFrom2: '&cThe group {default0} &cis not part of the visible groups of &fscoreboard {default1}&c.'
   setDisplay1: '&eThe display of &fscoreboard {default2} &ehas been changed from &c{default2} &eto &a{default2}&e.'
-  setDisplay2: '&aThis is already the current display of &fscoreboard $scoreboard&c!'
+  setDisplay2: '&aThis is already the current display of &fscoreboard {default}&c!'
   setTemplate1: "&eThe {default0} of &fscoreboard {default1} &ehas been changed from &f'&c{default2}&f' &e to &a{default3}&e."
   setTemplate2: '&aThis is already the current {default0} for &fscoreboard {default1}&c!'
   setTemplate3: '&cYou must fill in at least one of the template fields!'

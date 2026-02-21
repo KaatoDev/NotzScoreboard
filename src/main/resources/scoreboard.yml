@@ -6,37 +6,30 @@
 # SCOREBOARD TITLES ARE MAX 32 CHARS TOO!!!
 # * -> Prefix can handle 32 chars (with entry), but stay warned that COLOR CODE still counts as chars 
 #
-title: '&7-[ &f&lNotz &2&lScoreboard &7]-'
+#title: '{title_anim}'
+title: '&7-[ <bold>&g6fNotz &ga2Scoreboard</bold> &7]-'
 
 # Create custom or default placeholders. You can put a PlaceholderAPI placeholder like 'simpleclans_tag_label' (without the %).
 # It doesn't matter if you put a placeholder with {} or %%!
 placeholders: # All placeholders included here will need to be replaced with {} around to be used.
-  - nsb: "notzscoreboard"
   - rank: "&7No rank."
   - status_rankup: "&7------."
   - clan: "&7No clan."
   - clan_tag: "&7No clan."
   - clankdr: "&7No KDR."
 
-# Multiplier time in which multilines will be updated.
-# [multiline-time * priority-time]
-multiline-time: 3
-
-# Animation ticksss
-animation-interval: 2
-
 # The 'player' group is set by default, edit the template, header and footer for it.
 # If there is no attribute set in the 'scoreboard' area for a group, it will be set the default (player).
 default-group: 'player'
 priority-time: # in seconds | default is 20 seconds
   owner: 1
-  manager: 1
-  player: 5
+  manager: 2
 
 # Multiline separator: --(...), use -- or more hyphens to distinguish lines.
-# Prefix and Suffix separators: placeholder (suffix), : (separate and keep it), :: (separate only).
-# The prefix max length is 38 and the suffix is 16.
+# Prefix and Suffix line separators: placeholder (the suffix), ":" (separate and keep the ":"), "::" (separate only).
+# The prefix max length is 38 and the suffix is 16. (check first line comments)
 # It doesn't matter if you put a placeholder with {} or %%!
+# The ":" in placeholder defines a default param if the placeholder returns null.
 templates:
   - player:
       - ''
@@ -45,8 +38,9 @@ templates:
       - '&9⎧ {rank}'
       - '&9⎩ {status_rankup}'
       - ''
-      - '&2⎧ &aMoney&f: {money}'
-      - '&2⎩ &aCash&f: {cash}'
+      - '&2⎧ &aMoney&f: {money:0.0}'
+      - '--&2⎩ &aCash&f: {cash}'
+      - '--&2⎩ &aTokens&f: {tokens:0}'
       - ''
       - '&5⎧ &dClan&f: {simpleclans_clan_color_tag:&7No clan}'
       - '&5⎩ &dKDR&f: {simpleclans_kdr:0.0}'
@@ -95,7 +89,7 @@ staff-status:
   online:
     - ''
     - '&e⎧ If you need help'
-    - '&e⎜ call a &lstaff&e:'
+    - '&e⎜ call a staff:'
     - '&e⎩ -&r {staff}'
   offline:
     - ''

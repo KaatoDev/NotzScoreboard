@@ -1,5 +1,6 @@
 package dev.kaato.notzscoreboard.manager
 
+import dev.kaato.notzscoreboard.NotzScoreboard.Companion.cf
 import dev.kaato.notzscoreboard.NotzScoreboard.Companion.plugin
 import dev.kaato.notzscoreboard.NotzScoreboard.Companion.sf
 import dev.kaato.notzscoreboard.database.DatabaseManager.loadScoreboardsDB
@@ -207,8 +208,8 @@ object ScoreboardManager {
 
     fun loadScoreboardManager() {
         default_group = sf.config.getString("default-group") ?: ""
-        multilineTime = sf.config.getInt("multiline-time")
-        animationInterval = sf.config.getInt("animation-interval") * 1L
+        multilineTime = cf.config.getInt("multiline-time")
+        animationInterval = cf.config.getInt("animation-interval") * 1L
         val templatesConfig = sf.config.getMapList("templates")
 
         templatesConfig.forEach { map ->

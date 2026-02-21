@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dev.kaato"
-version = "4.0-pre4"
+version = "4.0-pre5"
 
 repositories {
     mavenCentral()
@@ -19,16 +19,18 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     implementation("net.kyori:adventure-text-serializer-legacy:4.26.1")
-    compileOnly("com.viaversion:viaversion-api:5.7.1") // Replace VERSION
+    
+    compileOnly("com.viaversion:viaversion-api:5.7.1")
     compileOnly("me.clip:placeholderapi:2.11.7")
+    implementation("org.bstats:bstats-bukkit:3.1.0")
+    
     implementation("org.xerial:sqlite-jdbc:3.46.0.0")
     implementation("com.mysql:mysql-connector-j:9.5.0")
-    implementation("org.jetbrains.exposed:exposed-core:0.61.0")
-    implementation("org.jetbrains.exposed:exposed-jdbc:0.61.0")
-    implementation("org.jetbrains.exposed:exposed-dao:0.61.0")
-    implementation("org.jetbrains.exposed:exposed-java-time:0.61.0")
-    implementation("org.jetbrains.exposed:exposed-json:0.61.0")
-    implementation("org.bstats:bstats-bukkit:3.1.0")
+    implementation("org.jetbrains.exposed:exposed-core:1.0.0")
+    implementation("org.jetbrains.exposed:exposed-jdbc:1.0.0")
+    implementation("org.jetbrains.exposed:exposed-dao:1.0.0")
+    implementation("org.jetbrains.exposed:exposed-java-time:1.0.0")
+    implementation("org.jetbrains.exposed:exposed-json:1.0.0")
 }
 
 tasks {

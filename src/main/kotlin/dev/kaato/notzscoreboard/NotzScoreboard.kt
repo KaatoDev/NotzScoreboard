@@ -39,8 +39,8 @@ class NotzScoreboard : JavaPlugin() {
             pathRaw = dataFolder.absolutePath
             plugin = this
 
-            af = NotzYAML("animations")
             cf = NotzYAML("config")
+            af = NotzYAML("animations")
             sf = NotzYAML("scoreboard")
             msgf = NotzYAML("messages")
             prefix = set("{prefix}")
@@ -67,7 +67,7 @@ class NotzScoreboard : JavaPlugin() {
                 start()
                 sendAdmin("&2NotzScoreboard &ainitialized! (${load / 1000.0}s)")
             }
-        }.runTaskLater(this, 4 * 20L)
+        }.runTaskLater(this, 5 * 20L)
     }
 
     private fun start() {

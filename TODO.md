@@ -12,9 +12,7 @@
 </style>
 <div>
     <ul>
-        <li>Atualizar NotzAPI</li>
-        <li>Refazer os Managers do plugin</li>
-        <li>Arrumar alguns sistemas da scoreboard</li>
+        <li>Atualizar NotzAPI - 1/2</li>
         <li>Formatar melhor as mensagens dos comandos</li>
         <li>Opção de visualizar pelo chat como ficará a scoreboard</li>
     </ul>

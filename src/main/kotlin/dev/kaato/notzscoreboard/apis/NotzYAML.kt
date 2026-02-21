@@ -9,6 +9,9 @@ import java.io.InputStreamReader
 import java.util.logging.Level
 
 class NotzYAML(private val fileName: String) {
+    companion object {
+        private val yamlVersion: Int = 1
+    }
 
     private val file = File(plugin.dataFolder, "$fileName.yml")
     lateinit var config: FileConfiguration
@@ -30,17 +33,22 @@ class NotzYAML(private val fileName: String) {
             config.setDefaults(defaults)
             config.options().copyDefaults(true)
         }
-        val version = config.getInt("version", 0)
-        if (version != 1) {
-            backupOldConfig(version)
+
+        if (config.contains("version")) {
+            val yamlOldVersion = config.getInt("version", 0)
+            if (yamlOldVersion != yamlVersion) {
+                backupOldConfig(yamlOldVersion)
+                config.set("version", yamlVersion)
+            }
         }
+
         save()
     }
 
     private fun backupOldConfig(oldVersion: Int) {
         val backup = File(file.parentFile, "$fileName.old.v$oldVersion.yml")
         file.renameTo(backup)
-        plugin.saveResource("$fileName.yml", false)
+        plugin.saveResource("$fileName.yml", true)
     }
 
     fun save() {

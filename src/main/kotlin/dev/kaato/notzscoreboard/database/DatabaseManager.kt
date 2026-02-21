@@ -1,23 +1,25 @@
 package dev.kaato.notzscoreboard.database
 
+import dev.kaato.notzscoreboard.NotzScoreboard.Companion.dao
 import dev.kaato.notzscoreboard.entities.ScoreboardE
 import dev.kaato.notzscoreboard.entities.ScoreboardModel
 import dev.kaato.notzscoreboard.utils.MessageUtil.log
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonPrimitive
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.update
 import java.time.LocalDateTime
 import java.util.*
 
 object DatabaseManager {
     fun insertScoreboardDB(name: String, display: String, color: String, header: String, template: String, footer: String, visibleGroups: List<String>, players: List<UUID>): Int {
-        val id = transaction {
+        val id = transaction(dao.getDatabase()) {
             Scoreboards.insert {
                 it[this.name] = name
                 it[this.display] = display
@@ -33,7 +35,7 @@ object DatabaseManager {
     }
 
     fun getScoreboardDB(id: Int): ScoreboardModel {
-        return transaction {
+        return transaction(dao.getDatabase()) {
             Scoreboards.selectAll().where { Scoreboards.id eq id }.first().let {
                 ScoreboardModel(
                     it[Scoreboards.id],
@@ -53,7 +55,7 @@ object DatabaseManager {
     }
 
     fun updateScoreboardDB(scoreboard: ScoreboardE) {
-        transaction {
+        transaction(dao.getDatabase()) {
             Scoreboards.update({ Scoreboards.id eq scoreboard.id }) {
                 it[display] = scoreboard.getDisplay()
                 it[header] = scoreboard.getHeader()
@@ -68,7 +70,7 @@ object DatabaseManager {
     }
 
     fun deleteScoreboardDB(id: Int): Boolean? {
-        val res = transaction {
+        val res = transaction(dao.getDatabase()) {
             Scoreboards.deleteWhere { Scoreboards.id eq id }
         }
         return when (res) {
@@ -82,17 +84,17 @@ object DatabaseManager {
     }
 
     fun loadScoreboardsDB(): List<ScoreboardE> {
-        return transaction { Scoreboards.select(Scoreboards.id).map { ScoreboardE(it[Scoreboards.id]) } }
+        return transaction(dao.getDatabase()) { Scoreboards.select(Scoreboards.id).map { ScoreboardE(it[Scoreboards.id]) } }
     }
 
     fun containScoreboardDB(name: String): Boolean {
-        return transaction {
+        return transaction(dao.getDatabase()) {
             Scoreboards.selectAll().where { Scoreboards.name eq name }.toList().isNotEmpty()
         }
     }
 
     fun containScoreboardsDB(): Boolean {
-        return transaction {
+        return transaction(dao.getDatabase()) {
             Scoreboards.selectAll().toList().isNotEmpty()
         }
     }

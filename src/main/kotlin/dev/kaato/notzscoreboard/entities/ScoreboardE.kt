@@ -199,6 +199,7 @@ class ScoreboardE(val id: Int) {
     fun addPlayer(playerUUID: UUID): Boolean {
         if (!players.contains(playerUUID)) {
             players.add(playerUUID)
+            updatePlayers()
             databaseUpdate()
         }
         return addOnlinePlayer(playerUUID)
@@ -336,9 +337,17 @@ class ScoreboardE(val id: Int) {
         val scoreboard = Bukkit.getScoreboardManager().newScoreboard
         if (hasAnimation(placeholderRegex.replace(getPlaceholder("title")) { it.groupValues[1] }))
             animatedLines["title"] = placeholderRegex.replace(getPlaceholder("title")) { it.groupValues[1] }
-        val objective = scoreboard.registerNewObjective(name, Criteria.DUMMY, c(set(getPlaceholder("title"))))
 
-        objective.numberFormat(NumberFormat.blank())
+        val objective = try {
+            scoreboard.registerNewObjective(name, Criteria.DUMMY, c(set(getPlaceholder("title"))))
+        } catch (ignore: NoClassDefFoundError) {
+            scoreboard.registerNewObjective(name, "DUMMY", c(set(getPlaceholder("title"))))
+        }
+
+        try {
+            objective.numberFormat(NumberFormat.blank())
+        } catch (ignore: NoClassDefFoundError) {
+        }
         objective.displaySlot = DisplaySlot.SIDEBAR
 
         lines.forEachIndexed { i, line ->
@@ -449,7 +458,11 @@ class ScoreboardE(val id: Int) {
                                 animatedLines[it.key] = placeholder
                             doReturn = true
                             ""
-                        } else placeholders.groupValues[0]
+                        } else {
+                            if (animatedLines.containsKey(it.key))
+                                animatedLines.remove(it.key)
+                            placeholders.groupValues[0]
+                        }
                     }
                 }
             }

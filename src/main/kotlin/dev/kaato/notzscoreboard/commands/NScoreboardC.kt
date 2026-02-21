@@ -85,7 +85,9 @@ class NScoreboardC : TabExecutor {
 
             } else help(player)
 
-            4, 5, 6 -> if (a[0] == "create") createScoreboardCMD(player, a[1], args[2], a[3], a[4], a[5]) else helpCreate(player)
+            4  -> if (a[0] == "create") createScoreboardCMD(player, a[1], args[2], a[3]) else helpCreate(player)
+            5  -> if (a[0] == "create") createScoreboardCMD(player, a[1], args[2], a[3], a[4]) else helpCreate(player)
+            6  -> if (a[0] == "create") createScoreboardCMD(player, a[1], args[2], a[3], a[4], a[5]) else helpCreate(player)
             else -> help(player, scoreboard)
         }
 

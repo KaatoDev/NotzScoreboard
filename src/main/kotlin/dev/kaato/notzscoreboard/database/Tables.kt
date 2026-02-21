@@ -1,9 +1,9 @@
 package dev.kaato.notzscoreboard.database
 
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.javatime.CurrentDateTime
-import org.jetbrains.exposed.sql.javatime.datetime
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.javatime.CurrentDateTime
+import org.jetbrains.exposed.v1.javatime.datetime
 
 const val max_varchar = 128
 

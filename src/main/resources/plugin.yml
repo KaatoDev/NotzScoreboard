@@ -1,7 +1,7 @@
 name: NotzScoreboard
-version: '4.0-pre4'
+version: '4.0-pre5'
 main: dev.kaato.notzscoreboard.NotzScoreboard
-api-version: '1.21'
+api-version: '1.20'
 prefix: NotzScoreboard
 authors: [ KaaDev ]
 description: A multi-scoreboard plugin for ranks, VIPs, and especially staff. Fully customizable.

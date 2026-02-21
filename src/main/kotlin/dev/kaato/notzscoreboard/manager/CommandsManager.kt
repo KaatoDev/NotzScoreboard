@@ -24,12 +24,13 @@ import org.bukkit.entity.Player
 import java.text.ParseException
 
 object CommandsManager {
+    //    fun createScoreboardCMD(player: Player, name: String, display: String, header: String? = null, template: String? = null, footer: String? = null) {
     fun createScoreboardCMD(player: Player, name: String, display: String, header: String? = null, template: String? = null, footer: String? = null) {
         if (!isBlacklisted(name)) {
             if (createScoreboard(name, display, player)) {
                 setTemplateCMD(player, name, header, template, footer)
-                send(player, "createScoreboard")
-            } else send(player, "create1")
+                send(player, "createScoreboard", name)
+            } else send(player, "create1", name)
         } else send(player, "create2")
     }
 
@@ -37,7 +38,7 @@ object CommandsManager {
         when (deleteScoreboard(scoreboard)) {
             true -> send(player, "delete1", scoreboard)
             false -> send(player, "delete2")
-            null -> send(player, "delete3")
+            null -> send(player, "delete3", scoreboard)
         }
     }
 
@@ -107,7 +108,7 @@ object CommandsManager {
             else send(player, "setTemplate2", defaults = listOf("footer", score.getDisplay()))
         }
 
-        if (header == null && template == null && footer == null) send(player, "setTemplate3")
+//        if (header == null && template == null && footer == null) send(player, "setTemplate3")
 
         setTemplate(scoreboard, header, template, footer)
     }
