@@ -15,5 +15,6 @@
         <li>Atualizar NotzAPI - 1/2</li>
         <li>Formatar melhor as mensagens dos comandos</li>
         <li>Opção de visualizar pelo chat como ficará a scoreboard</li>
+        <li>Implementar sistema de scoreboard por permission</li>
     </ul>
 </div>

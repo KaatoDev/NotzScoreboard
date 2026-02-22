@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dev.kaato"
-version = "4.0-pre5"
+version = "4.0"
 
 repositories {
     mavenCentral()

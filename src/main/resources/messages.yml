@@ -1,8 +1,6 @@
-# Use {} and the placeholder name between them:
-# {display} = gets the player's display name;
-# {name} = gets the player's name;
+# You can use {placeholder} or %placeholder%.
+# {default} = uses a string previously set in the plugin (you can't change this from outside the plugin);
 # {default<0-9>} = uses a string previously set in the plugin (you can't change this from outside the plugin);
-# {quantity} = gets the item's quantity.
 
 prefix: '&g2f2[NotzSbV4]&f'
 
