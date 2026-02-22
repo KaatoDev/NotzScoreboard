@@ -3,6 +3,16 @@ useMySQL: false
 mysql:
   host: 'localhost'
   port: '3306'
-  database: 'db_notzscoreboardv3'
+  database: 'db_notzscoreboard'
   user: 'root'
   password: ''
+
+# Multiplier time in which multilines will be updated.
+# [update time = multiline-time * priority-time]
+multiline-time: 3
+
+# Animation ticksss
+animation-interval: 2
+
+## Do not change this
+version: 1  

@@ -1,184 +1,50 @@
 package dev.kaato.notzscoreboard.manager
 
-import dev.kaato.notzapi.utils.MessageU.Companion.join
-import dev.kaato.notzscoreboard.NotzScoreboard.Companion.messageU
-import dev.kaato.notzscoreboard.database.DatabaseManager.containPlayerDB
-import dev.kaato.notzscoreboard.database.DatabaseManager.getPlayerByUUIDDB
-import dev.kaato.notzscoreboard.database.DatabaseManager.loadPlayersDB
-import dev.kaato.notzscoreboard.entities.NotzPlayer
-import dev.kaato.notzscoreboard.entities.ScoreboardE
-import dev.kaato.notzscoreboard.manager.ScoreboardManager.checkVisibleGroupsBy
-import dev.kaato.notzscoreboard.manager.ScoreboardManager.containScoreboard
+import com.viaversion.viaversion.api.Via
+import dev.kaato.notzscoreboard.NotzScoreboard.Companion.hasViaVersion
+import dev.kaato.notzscoreboard.NotzScoreboard.Companion.plugin
+import dev.kaato.notzscoreboard.manager.ScoreboardManager.addPlayerTo
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.default_group
-import dev.kaato.notzscoreboard.manager.ScoreboardManager.getScoreboardByID
-import dev.kaato.notzscoreboard.manager.ScoreboardManager.scoreboards
+import dev.kaato.notzscoreboard.manager.ScoreboardManager.registerPlayerToScoreboard
+import dev.kaato.notzscoreboard.manager.ScoreboardManager.unregisterPlayerFromScoreboard
+import dev.kaato.notzscoreboard.utils.MessageUtil.log
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.bukkit.scheduler.BukkitRunnable
 import java.util.*
 
 object PlayerManager {
-    val players = hashMapOf<UUID, NotzPlayer>()
+    val oldPlayerVersions = mutableListOf<UUID>()
 
     fun joinPlayer(player: Player) {
-        if (players.containsKey(player.uniqueId)) {
-            val nPlayer = fastGetPlayer(player)
-
-            if (containScoreboard(nPlayer.getScoreboardId()))
-                getScoreboardByID(nPlayer.getScoreboardId())?.addPlayer(player)
-
-            players[player.uniqueId] = nPlayer
-
-        } else if (scoreboards.containsKey(default_group))
-            scoreboards[default_group]!!.addPlayer(player)
-        else messageU.send(Bukkit.getConsoleSender(), "&cUnable to assign a scoreboard to the player &f${player.name}&c. Error: pmanager1")
+        registerPlayerVersion(player)
+        when (registerPlayerToScoreboard(player)) {
+            true -> log("&eAssigned a scoreboard to the player &f${player.name}&e.")
+            false -> log("&cUnable to assign a scoreboard to the player &f${player.name}&c. Error: pmanager1")
+        }
     }
 
     fun leavePlayer(player: Player) {
-        if (players.containsKey(player.uniqueId)) {
-            val nPlayer = fastGetPlayer(player)
-
-            if (containScoreboard(nPlayer.getScoreboardId()))
-                getScoreboardByID(nPlayer.getScoreboardId())?.remPlayer(player)
-
-            players.remove(nPlayer.uuid)
-
-        } else if (scoreboards.containsKey(default_group))
-            scoreboards[default_group]!!.remPlayer(player)
-        else messageU.send(Bukkit.getConsoleSender(), "&cUnable to remove/assign a scoreboard to the player &f${player.name}&c. Error: pmanager2")
+        if (!unregisterPlayerFromScoreboard(player))
+            log("&cUnable to remove/assign a scoreboard to the player &f${player.name}&c. Error: pmanager2")
     }
 
-//    fun joinPlayer(player: Player) {
-//        val nPlayer = fastGetPlayer(player)
-//        players[player.uniqueId] = nPlayer
-//
-//        if (containScoreboard(nPlayer.getScoreboardId()))
-//            scoreboards.filterValues { it.id == nPlayer.getScoreboardId() }.values.let {
-//                if (it.isNotEmpty()) it.first().addPlayer(player)
-//            }
-//        else {
-//            val score = getDefaultScoreboard()
-//            println(default_group)
-//            score?.addPlayer(player)
-//            nPlayer.setScoreboardId(score?.id ?: 0)
-//        }
-//    }
-
-//    fun leavePlayer(player: Player) {
-//        val nPlayer = fastGetPlayer(player)
-//        if (players.containsKey(player.uniqueId))
-//            players.remove(player.uniqueId)
-//
-//        scoreboards.filterValues { it.id == nPlayer.getScoreboardId() }.values.let {
-//            if (it.isNotEmpty()) it.first().remPlayer(player)
-//        }
-//    }
-
-    fun fastGetPlayer(player: Player): NotzPlayer {
-        return players.getOrDefault(player.uniqueId, getPlayerByUUIDDB(player.uniqueId))
-//        return players.getOrDefault(player.uniqueId, if (containPlayerDB(player.uniqueId)) getPlayerByUUIDDB(player.uniqueId) else NotzPlayer(player).let { players[player.uniqueId] = it; it })
-    }
-
-    fun checkPlayer(player: Player, scoreboard: ScoreboardE? = null, isDefault: Boolean = false) {
-        val containNPLayer = players.containsKey(player.uniqueId) || containPlayerDB(player.uniqueId)
-
-        if (isDefault && !containNPLayer) return
-
-        val nPlayer = if (players.containsKey(player.uniqueId) || containPlayerDB(player.uniqueId))
-            fastGetPlayer(player)
-        else {
-            scoreboards[default_group]!!.remPlayer(player)
-            NotzPlayer(player)
-        }
-
-        if (scoreboard?.id == nPlayer.getScoreboardId()) return
-
-        getScoreboardByID(nPlayer.getScoreboardId())?.let {
-            it.remPlayer(player)
-            checkVisibleGroupsBy(it.name)
-        }
-        
-        if (scoreboard != null && !scoreboard.isDefault()) {
-            nPlayer.setScoreboardId(scoreboard.id)
-            scoreboard.addPlayer(player)
-            checkVisibleGroupsBy(scoreboard.name)
-
-        } else {
-            players.remove(player.uniqueId)
-            scoreboards[default_group]!!.addPlayer(player)
-            nPlayer.delete()
-        }
-    }
-
-//    fun checkPlayer(player: Player, scoreboard: ScoreboardE? = null, isDefault: Boolean? = null) {
-//        if (scoreboard != null && !scoreboard.isDefault()) {
-//            if (players.containsKey(player.uniqueId) || containPlayerDB(player.uniqueId)) {
-//                val nPlayer = fastGetPlayer(player)
-//                
-//                if (containScoreboard(nPlayer.getScoreboardId()))
-//                    getScoreboardByID(nPlayer.getScoreboardId())?.remPlayer(player)
-//                
-//                nPlayer.setScoreboardId(scoreboard.id)
-//
-//            } else {
-//                val nPlayer = NotzPlayerE(player)
-//                nPlayer.setScoreboardId(scoreboard.id)
-//                scoreboards[default_group]!!.remPlayer(player)
-//            }
-//
-//            checkVisibleGroupsBy(scoreboard.name)
-//            val nPlayer = fastGetPlayer(player)
-//            nPlayer.setScoreboardId(scoreboard.id)
-//
-//        } else if (isDefault != null && !isDefault && players.containsKey(player.uniqueId)) {
-//            val nPlayer = fastGetPlayer(player)
-//
-//            getScoreboardByID(nPlayer.getScoreboardId()).let {
-//                if (it == null) return@let
-//                it.remPlayer(player)
-//                checkVisibleGroupsBy(it.name)
-//            }
-//            players.remove(player.uniqueId)
-//            nPlayer.delete()
-//            scoreboards[default_group]!!.addPlayer(player)
-//        }
-//    }
-
-    fun resetPlayer(sender: Player, player: Player) {
-        if (players.containsKey(player.uniqueId)) {
-            checkPlayer(player, isDefault = false)
-            messageU.send(sender, "resetPlayer1", player.name)
-
-        } else messageU.send(sender, "resetPlayer2", player.name)
-    }
-
-    fun loadPlayers() {
-        loadPlayersDB().forEach { players[it.uuid] = it }
-    }
-
-    fun addConvertedPlayers(cPlayers: List<NotzPlayer>): Int {
-        cPlayers.forEach {
-            if (!players.containsKey(it.uuid)) players[it.uuid] = it
-        }
-
-        return cPlayers.size
+    fun resetPlayer(player: Player): Boolean {
+        return addPlayerTo(player, default_group)
     }
 
     fun initializePlayers() {
         Bukkit.getOnlinePlayers().forEach(::joinPlayer)
     }
 
-    fun seePlayers(player: Player, scoreboard: String = "") {
-        val all = scoreboard.isBlank()
+    fun registerPlayerVersion(player: Player) {
+        if (hasViaVersion && Via.getAPI().getPlayerVersion(player.uniqueId) < 765)
+            oldPlayerVersions.add(player.uniqueId)
+        else if (oldPlayerVersions.contains(player.uniqueId)) 
+            oldPlayerVersions.remove(player.uniqueId)
+    }
 
-        val scores = scoreboards.values.filter { (if (all) it.name != default_group else it.name == scoreboard) && it.getPlayers().isNotEmpty() }
-
-        if (scores.isNotEmpty()) {
-            val scorePlayers = mutableListOf<String>()
-
-            scores.forEach { it.getPlayers().forEach { p -> scorePlayers.add("&f${p.name}&e: &f${it.getDisplay()}") } }
-
-            messageU.sendHeader(player, join(scorePlayers.toList(), separator = "\n"))
-
-        } else messageU.send(player, "seePlayers")
+    fun checkPlayerVersion(playerUUID: UUID): Boolean {
+        return oldPlayerVersions.contains(playerUUID)
     }
 }

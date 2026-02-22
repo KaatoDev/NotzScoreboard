@@ -1,0 +1,32 @@
+normal:
+  - title_anim:
+    - '&7-[ &f&lNotz &2&lScoreboard &7]-'
+    - '&7[ &f&lNotz &2&lScoreboard &7]- '
+    - ' &f&lNotz &2&lScoreboard &7]-  '
+    - '&f&lNotz &2&lScoreboard &7]-   '
+    - '&f&lotz &2&lScoreboard &7]-   '
+    - '&f&ltz &2&lScoreboard &7]-    '
+    - '&f&lz &2&lScoreboard &7]-     '
+    - '&f&l &2&lScoreboard &7]-      -'
+    - '&2&lScoreboard &7]-      -['
+    - '&2&lcoreboard &7]-      -[ '
+    - '&2&loreboard &7]-      -[ &f&lN'
+    - '&2&lreboard &7]-      -[ &f&lNo'
+    - '&2&leboard &7]-      -[ &f&lNot'
+    - '&2&lboard &7]-      -[ &f&lNotz'
+    - '&2&loard &7]-      -[ &f&lNotz '
+    - '&2&lard &7]-      -[ &f&lNotz &2&lS'
+    - '&2&lrd &7]-      -[ &f&lNotz &2&lSc'
+    - '&2&ld &7]-      -[ &f&lNotz &2&lSco'
+    - ' &7]-      -[ &f&lNotz &2&lScore'
+    - '&7-      -[ &f&lNotz &2&lScoreb'
+    - '      &7-[ &f&lNotz &2&lScorebo'
+    - '     &7-[ &f&lNotz &2&lScoreboa'
+    - '    &7-[ &f&lNotz &2&lScoreboar'
+    - '   &7-[ &f&lNotz &2&lScoreboard'
+    - '  &7-[ &f&lNotz &2&lScoreboard '
+    - ' &7-[ &f&lNotz &2&lScoreboard &7]'
+
+## not working properly with colors yet
+auto:
+  - title_auto: '&7-[ &f&lNotz &2&lScoreboard &7]-'

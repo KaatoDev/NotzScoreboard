@@ -1,32 +1,27 @@
 package dev.kaato.notzscoreboard.manager
 
-import dev.kaato.notzapi.utils.MessageU
-import dev.kaato.notzapi.utils.MessageU.Companion.join
-import dev.kaato.notzscoreboard.NotzScoreboard.Companion.messageU
-import dev.kaato.notzscoreboard.NotzScoreboard.Companion.placeholderManager
+import dev.kaato.notzscoreboard.NotzScoreboard.Companion.cf
 import dev.kaato.notzscoreboard.NotzScoreboard.Companion.plugin
 import dev.kaato.notzscoreboard.NotzScoreboard.Companion.sf
 import dev.kaato.notzscoreboard.database.DatabaseManager.loadScoreboardsDB
 import dev.kaato.notzscoreboard.entities.ScoreboardE
-import dev.kaato.notzscoreboard.manager.PlayerManager.checkPlayer
 import dev.kaato.notzscoreboard.manager.PlayerManager.initializePlayers
-import dev.kaato.notzscoreboard.manager.PlayerManager.loadPlayers
-import dev.kaato.notzscoreboard.manager.PlayerManager.players
-import me.clip.placeholderapi.PlaceholderAPI.setPlaceholders
-import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.scheduler.BukkitTask
 import kotlin.random.Random
 
 object ScoreboardManager {
     val blacklist = arrayOf("create", "delete", "remove", "list", "null", "players", "reload")
     val scoreboards = hashMapOf<String, ScoreboardE>()
+    val scoreboardsPlayers = hashMapOf<String, MutableList<String>>()
     private val templates = hashMapOf<String, List<String>>()
     private val staffStatus = hashMapOf<Boolean, List<String>>()
     var default_group: String
-    private var priorityList = hashMapOf<String, PriorityClass>()
+    var multilineTime = 1
+    var animationTask: BukkitTask? = null
+    var animationInterval = 1L
 
-    data class PriorityClass(var task: BukkitTask?, var time: Long)
 
     // -------------------
 
@@ -34,236 +29,195 @@ object ScoreboardManager {
         default_group = sf.config.getString("default_group") ?: "player"
     }
 
-    fun getDefaultScoreboard(): ScoreboardE? = scoreboards.values.find { it.isDefault() }
-    fun getDefaultScoreboardId(): Int = getDefaultScoreboard()?.id ?: 0
-
     // scoreboard - start
 
-    fun getScoreboardByID(id: Int): ScoreboardE? {
-        return scoreboards.filterValues { it.id == id }.values.firstOrNull()
+    fun getDefaultScoreboard(): ScoreboardE? = scoreboards.values.find { it.isDefault() }
+
+    fun isBlacklisted(name: String): Boolean = blacklist.contains(name)
+
+    fun registerPlayerToScoreboard(player: Player): Boolean {
+        val playerScores = scoreboards.values.filter {
+            it.getPlayers().contains(player.uniqueId)
+        }
+
+        return if (playerScores.isEmpty())
+            addPlayerTo(player, default_group)
+        else addPlayerTo(player, playerScores.first())
     }
 
-    fun getScoreboard(name: String): ScoreboardE? {
-        return scoreboards.filterKeys { it == name }.values.firstOrNull()
-    }
-
-    fun containScoreboard(id: Int): Boolean {
-        return scoreboards.filterValues { it.id == id }.isNotEmpty()
+    fun unregisterPlayerFromScoreboard(player: Player): Boolean {
+        return (scoreboards.values.find { it.getOnlinePlayers().contains(player.uniqueId) }?.let {
+            scoreboardsPlayers[it.name]?.remove(player.name)
+            it.remOnlinePlayer(player.uniqueId)
+        }) ?: false
     }
 
     fun createScoreboard(name: String, display: String, player: Player? = null): Boolean {
-        return if (!scoreboards.containsKey(name)) {
-            val scoreboard = ScoreboardE(name, display)
-            scoreboards[name] = scoreboard
+        if (scoreboards.containsKey(name)) return false
 
-            if (name == (getDefaultScoreboard()?.name ?: "")) scoreboard.setDefault(true)
-            if (player != null) {
-                addPlayerTo(player, player, name)
-                messageU.send(player, "createScoreboard", display)
-            }
+        val scoreboard = ScoreboardE(name, display)
+        scoreboards[name] = scoreboard
+        scoreboardsPlayers[name] = mutableListOf()
 
-            true
-        } else false
+        if (name == (getDefaultScoreboard()?.name ?: "")) scoreboard.setDefault(true)
+        if (player != null) addPlayerTo(player, name)
+
+        return true
     }
 
     fun deleteScoreboard(scoreboard: String): Boolean? {
         return if (scoreboards.contains(scoreboard)) {
             if (scoreboard != default_group) {
                 val score = scoreboards[scoreboard]!!
-                score.getPlayers().forEach { checkPlayer(it, isDefault = score.isDefault()) }
-                score.delete()
                 scoreboards.remove(scoreboard)
+                scoreboardsPlayers.remove(scoreboard)
+                score.delete()
 
                 true
             } else null
         } else false
     }
 
-    fun viewScoreboard(player: Player, scoreboard: String) {
-        if (scoreboards.contains(scoreboard)) {
-            scoreboards[scoreboard]!!.getScoreboard(player)
-            messageU.send(player, "viewScoreboard1", display(scoreboard))
-
-        } else messageU.send(player, "viewScoreboard2")
+    fun viewScoreboard(player: Player, scoreboard: String): Boolean {
+        return if (scoreboards.contains(scoreboard)) {
+            scoreboards[scoreboard]!!.getScoreboard(player.uniqueId)
+            true
+        } else false
     }
 
-    fun pauseScoreboard(player: Player, scoreboard: String, minutes: Int = 1) {
-        if (scoreboards.contains(scoreboard)) {
+    fun pauseScoreboard(scoreboard: String, minutes: Int = 1): Boolean {
+        return if (scoreboards.contains(scoreboard)) {
             scoreboards[scoreboard]!!.pauseTask(minutes)
-            messageU.send(player, "pauseScoreboard1", defaults = listOf(display(scoreboard), minutes.toString(), if (minutes > 1) "s" else ""))
-
-        } else messageU.send(player, "pauseScoreboard2")
+            true
+        } else false
     }
 
-    fun addPlayerTo(sender: Player, player: Player, scoreboard: String) {
+    fun addPlayerTo(player: Player, scoreboard: String): Boolean {
+        val score = scoreboards[scoreboard] ?: return false
+        return addPlayerTo(player, score)
+    }
+
+    fun addPlayerTo(player: Player, scoreboard: ScoreboardE): Boolean {
+        return if (scoreboard.addPlayer(player.uniqueId)) {
+            remPlayerFromExcept(player, scoreboard.name)
+            scoreboardsPlayers[scoreboard.name]?.add(player.name)
+            true
+        } else false
+    }
+
+    fun remPlayerFromExcept(player: Player, exceptScoreboard: String) {
+        scoreboards.values.filter { it.name != exceptScoreboard && it.containsPlayer(player.uniqueId) }.forEach {
+            it.remPlayer(player.uniqueId)
+            scoreboardsPlayers[it.name]?.remove(player.name)
+        }
+    }
+
+    fun addGroupTo(scoreboard: String, group: String): Boolean {
         val score = scoreboards[scoreboard]!!
-
-        if (score.addPlayer(player)) {
-            messageU.send(sender, "addPlayerTo1", defaults = listOf(score.getDisplay(), player.name))
-            checkPlayer(player, score)
-
-            if (scoreboards[default_group]!!.getVisibleGroups().contains(scoreboard))
-                scoreboards[default_group]!!.update()
-
-        } else messageU.send(sender, "addPlayerTo2", player.name)
+        return score.addGroup(group)
     }
 
-    fun remPlayerFrom(sender: Player, player: Player, scoreboard: String) {
+    fun remGroupFrom(scoreboard: String, group: String): Boolean {
         val score = scoreboards[scoreboard]!!
-
-        if (score.remPlayer(player)) {
-            messageU.send(sender, "remPlayerFrom1", defaults = listOf(score.getDisplay(), player.name))
-            checkPlayer(player, isDefault = score.isDefault())
-
-        } else messageU.send(sender, "remPlayerFrom2", defaults = listOf(player.name, if (players.containsKey(player.uniqueId)) players[player.uniqueId]!!.name else default_group))
+        return score.remGroup(group)
     }
 
-    fun addGroupTo(player: Player, scoreboard: String, group: String) {
-        val score = scoreboards[scoreboard]!!
-
-        if (score.addGroup(group))
-            messageU.send(player, "addGroupTo1", defaults = listOf(display(group), score.getDisplay()))
-        else messageU.send(player, "addGroupTo2", defaults = listOf(display(group), score.getDisplay()))
-    }
-
-    fun remGroupFrom(player: Player, scoreboard: String, group: String) {
-        val score = scoreboards[scoreboard]!!
-
-        if (score.remGroup(group))
-            messageU.send(player, "remGroupFrom1", defaults = listOf(display(group), score.getDisplay()))
-        else messageU.send(player, "remGroupFrom2", defaults = listOf(display(group), score.getDisplay()))
-    }
-
-    fun setDisplay(player: Player, scoreboard: String, display: String) {
+    fun setDisplay(scoreboard: String, display: String): Boolean {
         val score = scoreboards[scoreboard]!!
         val temp = score.getDisplay()
 
-        if (display == temp) {
+        return if (display == temp) {
             score.setDisplay(display)
-            messageU.send(player, "setDisplay1", defaults = listOf(scoreboard, temp, display))
-
-        } else messageU.send(player, "setDisplay2", scoreboard)
+            true
+        } else false
     }
 
     fun setTemplate(scoreboard: String, header: String? = null, template: String? = null, footer: String? = null) {
         scoreboards[scoreboard]!!.setTemplate(header, template, footer)
     }
 
-    fun setTemplate(player: Player, scoreboard: String, header: String? = null, template: String? = null, footer: String? = null) {
+    fun setColor(scoreboard: String, color: String): String {
         val score = scoreboards[scoreboard]!!
 
-        if (header != null) {
-            if (header != score.getHeader())
-                messageU.send(player, "setTemplate1", defaults = listOf("header", score.getDisplay(), score.getHeader(), header))
-            else messageU.send(player, "setTemplate2", defaults = listOf("header", score.getDisplay()))
+        return score.getColor().let {
+            if (it != color) {
+                score.setColor(color)
+                it
+            } else ""
         }
-
-        if (template != null) {
-            if (template != score.getTemplate())
-                messageU.send(player, "setTemplate1", defaults = listOf("template", score.getDisplay(), score.getTemplate(), template))
-            else messageU.send(player, "setTemplate2", defaults = listOf("template", score.getDisplay()))
-        }
-
-        if (footer != null) {
-            if (footer != score.getFooter())
-                messageU.send(player, "setTemplate1", defaults = listOf("footer", score.getDisplay(), score.getFooter(), footer))
-            else messageU.send(player, "setTemplate2", defaults = listOf("footer", score.getDisplay()))
-        }
-
-        if (header == null && template == null && footer == null)
-            messageU.send(player, "setTemplate3")
-
-        scoreboards[scoreboard]!!.setTemplate(header, template, footer)
-    }
-
-    fun setColor(player: Player, scoreboard: String, color: String) {
-        val score = scoreboards[scoreboard]!!
-        val temp = score.getColor()
-
-        if (color != temp) {
-            score.setColor(color)
-            player.sendMessage("$color $temp")
-            messageU.send(player, "setColor1", defaults = listOf(display(scoreboard), join(temp.map { temp + it }, ""), join(color.map { color + it }, "")))
-        } else messageU.send(player, "setColor2", score.getDisplay())
-
     }
 
     fun display(scoreboard: String): String {
         return scoreboards[scoreboard]!!.getDisplay()
     }
 
-    fun seeVisibleGroups(player: Player, scoreboard: String = "") {
-        messageU.sendHeader(player, join(scoreboards[scoreboard]!!.getVisibleGroups(), prefix = "&e ⧽ &f$scoreboard&e: &f", separator = "&e, &f") {
-            if (it == scoreboard) "&a$it" else it
-        })
-    }
-
-    // scoreboard - end
+// scoreboard - end
 // -------------------
-    // geral - start
+// geral - start
 
-    fun reload() {
-        plugin.pluginLoader.disablePlugin(plugin)
-        plugin.pluginLoader.enablePlugin(plugin)
+    fun updateAllScoreboards() {
+        scoreboards.values.forEach { it.updatePlayers() }
     }
 
-    fun updateAllScoreboards(p: Player) {
-        scoreboards.values.forEach { it.update() }
-        messageU.send(p, "updateAllScoreboards")
+    fun getStaffStatus(visibleGroups: List<String>): List<String> {
+        return staffStatus[checkVisibleGroups(visibleGroups)]!!
     }
 
     fun getTemplate(template: String, visibleGroups: List<String>? = null): List<String> {
-        return if (templates.containsKey(template))
-            templates[template]!!
-        else if (template == "staff-status" && visibleGroups != null)
-            staffStatus[checkVisibleGroups(visibleGroups)]!!
+        return if (templates.containsKey(template)) templates[template]!!
+        else if (template == "staff-status" && visibleGroups != null) getStaffStatus(visibleGroups)
         else listOf(template)
     }
 
     fun getPlayerFromGroup(visibleGroups: List<String>): String {
         val playerList = getPlayersFromGroups(visibleGroups)
-        return playerList[Random.nextInt(playerList.size)].name!!
+        return playerList[Random.nextInt(playerList.size)]
     }
 
-    fun getPlayersFromGroups(visibleGroups: List<String>): List<Player> {
-        return scoreboards.filterValues { visibleGroups.contains(it.name) }.flatMap {
-            it.value.getPlayers()
-        }
+    fun getPlayersFromGroups(visibleGroups: List<String>): List<String> {
+        return scoreboardsPlayers.filter { visibleGroups.contains(it.key) }.flatMap { it.value }
     }
 
-    private fun checkVisibleGroups(visibleGroups: List<String>): Boolean {
-        return visibleGroups.map { scoreboards.values.find { sb -> sb.name == it } }.any { it != null && it.getPlayers().isNotEmpty() }
-    }
-
-    fun checkVisibleGroupsBy(scoreboard: String) {
-        if (scoreboard != default_group)
-            scoreboards.values.forEach { if (it.getVisibleGroups().contains(scoreboard)) it.update() }
+    fun checkVisibleGroups(visibleGroups: List<String>): Boolean {
+        return getPlayersFromGroups(visibleGroups).isNotEmpty()
     }
 
     fun shutdown() {
+        if (animationTask != null)
+            animationTask?.cancel()
+
         scoreboards.values.forEach {
             it.forceCancelTask()
             it.shutdownSB()
         }
     }
 
-    // geral - end
+// geral - end
 // -------------------
-    // loaders - start
+// loaders - start
 
-    fun load() {
-        loadPlaceholders()
+    fun startAnimation() {
+        animationTask = object : BukkitRunnable() {
+            override fun run() {
+                scoreboards.values.forEach {
+                    it.animatePlayers()
+                }
+            }
+        }.runTaskTimer(plugin, 0, animationInterval)
+    }
 
+    fun loadScoreboardManager() {
+        default_group = sf.config.getString("default-group") ?: ""
+        multilineTime = cf.config.getInt("multiline-time")
+        animationInterval = cf.config.getInt("animation-interval") * 1L
         val templatesConfig = sf.config.getMapList("templates")
-        default_group = sf.config.getString("default-group")
-        arrayOf("low", "medium", "high").forEach { priorityList[it] = PriorityClass(null, sf.config.getLong("priority-time.$it") * 20) }
 
         templatesConfig.forEach { map ->
             map.forEach {
                 val scoreLines = mutableListOf<String>()
 
                 (it.value as List<*>).forEach { l -> scoreLines.add(l.toString()) }
-                (it.value.toString())
+//                (it.value.toString())
 
                 templates[it.key.toString()] = scoreLines
             }
@@ -273,88 +227,16 @@ object ScoreboardManager {
         staffStatus[false] = sf.config.getStringList("staff-status.offline")
 
         loadScoreboards()
-    }
-
-    private fun loadPlaceholders() {
-        sf.config.getMapList("placeholders").flatMap { it.entries }.forEach { placeholderManager.addPlaceholder("{${it.key.toString()}}", it.value.toString()) }
-
-        placeholderManager.addPlaceholders(
-            hashMapOf(
-                "{title}" to { sf.config.getString("title") },
-
-                "{rank}" to { p: Any? ->
-                    var rank = "&7Sem rank."
-
-                    if (p != null && Bukkit.getServer().pluginManager.getPlugin("yPlugins") != null) {
-                        val player = p as Player
-                        rank = setPlaceholders(player, "%yrankup_rank_tag%") + setPlaceholders(player, "%yrankup_rank_name%")
-
-                        if (rank.contains("5")) rank = setPlaceholders(player, "%yrankup_rank_tag%") + "&l" + setPlaceholders(player, "%yrankup_rank_name%")
-                        else if (!rank.contains("I")) rank = "&8[$rank&8]"
-                    }
-                    rank
-                },
-
-                "{status_rankup}" to { p: Any? ->
-                    var status = "&7Sem status."
-
-                    if (p != null && Bukkit.getServer().pluginManager.getPlugin("yPlugins") != null)
-                        status = setPlaceholders(p as Player, "%yrankup_rank_tag%") + setPlaceholders(p, "%yrankup_progressbar%")
-
-                    status
-                },
-
-                "{clan}" to { p: Any? ->
-                    var clan = "&7Sem clan."
-
-                    if (p != null && Bukkit.getServer().pluginManager.getPlugin("simpleclans") != null && setPlaceholders(p as Player, "%simpleclans_clan_name%").isNotEmpty()) {
-                        val pa = setPlaceholders(p, "%simpleclans_clan_name%")
-                        clan = MessageU.c(pa)
-                    }
-                    clan
-                },
-
-                "{clan_tag}" to { p: Any? ->
-                    var clan = "&7Sem clan."
-
-                    if (p != null && Bukkit.getServer().pluginManager.getPlugin("simpleclans") != null && setPlaceholders(p as Player, "%simpleclans_tag_label%").isNotEmpty()) {
-                        val pa = setPlaceholders(p, "%simpleclans_tag_label%")
-                        clan = MessageU.c(pa.substring(4, pa.length - 5))
-                    }
-                    clan
-                },
-
-                "{clankdr}" to { p: Any? ->
-                    var kdr = "&7Sem KDR."
-
-                    if (p != null && Bukkit.getServer().pluginManager.getPlugin("simpleclans") != null && setPlaceholders(p as Player, "%simpleclans_tag_label%").isNotEmpty()) {
-                        kdr = setPlaceholders(p, "%simpleclans_kdr%")
-                        if (kdr == "0") kdr = "&fSem KDR."
-                    }
-                    kdr
-                }
-            ))
-    }
-
-    fun addConvertedScoreboards(cExcavators: List<ScoreboardE>): Int {
-        cExcavators.forEach {
-            if (!scoreboards.containsKey(it.name)) scoreboards[it.name] = it
-        }
-
-        return cExcavators.size
+        startAnimation()
     }
 
     private fun loadScoreboards() {
         val scores = loadScoreboardsDB()
-        loadPlayers()
 
-//        if (scores == null) {
-////            messageU.send(Bukkit.getConsoleSender(), "&cError smanager1")
-////            return
-////        }
-
-        if (scores.isNotEmpty())
-            scores.forEach { scoreboards[it.name] = it }
+        if (scores.isNotEmpty()) scores.forEach {
+            scoreboards[it.name] = it
+            scoreboardsPlayers[it.name] = mutableListOf()
+        }
         else {
             createScoreboard("player", "&e&lPlayer")
             createScoreboard("helper", "&e&lHelper")
@@ -364,6 +246,7 @@ object ScoreboardManager {
             createScoreboard("manager", "&4&lManager")
             createScoreboard("owner", "&6&lOwner")
 
+            scoreboards["player"]?.addGroup(mutableListOf("helper", "trial"))
             scoreboards["helper"]?.setTemplate("", "player", "staff")
             scoreboards["helper"]?.addGroup(mutableListOf("helper", "trial", "mod"))
             scoreboards["helper"]?.setColor("&e")
@@ -386,11 +269,4 @@ object ScoreboardManager {
 
         initializePlayers()
     }
-
-    // loaders - end
-
-    fun saveScoreboard() {
-        scoreboards.values.forEach { it.databaseUpdate() }
-    }
-// -------------------
 }
