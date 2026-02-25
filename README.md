@@ -13,7 +13,7 @@
 <img src="https://repo.kaato.dev/images/plugins/NotzScoreboard2.png" alt="NotzScoreboardV3" height="300" >
 
 #
-NotzScoreboard is a complete and fully customizable scoreboard plugin that features: support for multiple simultaneous scoreboards; its own placeholders and PlaceholderAPI; database via MySQL or SQLite and dynamic updating for greater efficiency.
+NotzScoreboard is a complete and fully customizable scoreboard plugin that features: support for multiple simultaneous scoreboards; multiline and animation support; ViaVersion support for legacy players in 1.20/1.21 servers; its own placeholders and PlaceholderAPI; database via MySQL or SQLite and dynamic updating for greater efficiency.
 
 <br/>
 
@@ -33,7 +33,7 @@ It also has a system of templates that can be created in the plugin's configurat
 You can choose to use dynamic placeholders from other plugins via the PlaceholderAPI or your own static placeholders that can be created via the plugin's configuration file.
 
 ### Color codes
-The plugin allows you to use the old color code system and short color codes instead of creating long <color> strings in every scoreboard line or in messages sent to players.
+The plugin allows you to use the old color code system and short color codes instead of creating long <color> strings in every scoreboard line or in messages sent to players. (v4 only)
 
 ### Tip
 For questions or issues: [Discord @Gago32](https://discord.com/users/258701013198831617)
@@ -87,10 +87,11 @@ For questions or issues: [Discord @Gago32](https://discord.com/users/25870101319
 
 <br/>
 
-## Scoreboard system
+## Scoreboard system (v4 only)
 
 ### Multiline separator: `--`
 Use `--` or more hyphens to distinguish lines.
+
 ### Prefix and Suffix line separators:
 `Placeholder` (the suffix), `:` (separate and keeps the ":"), `::` (only separates).
 
@@ -124,7 +125,7 @@ templates:
 
 <br/>
 
-## Custom color code system
+## Custom color code system (v4 only)
 
 ### Legacy color codes
 Use `&` along with any legacy color code.\
@@ -158,14 +159,14 @@ Example: `&&copy[You copied me!](Click here to copy something.)` (Copies a messa
 Example: `&&run[/tutorial](Click here to run the tutorial!)` (Executes a command).\
 Example: `&&sug[/bc yipeee](Click here to be happy!)` (Suggests a command).
 
-### End code
+### End color code
 Use `&.` to terminate a color code (the '&.' will be removed from the message). It will also be terminated when another color code begins (auto detects another `&`).
 
 <br/>
 
 ## Dependencies
 - PlaceholderAPI (Optional)
-- ViaVersion (Optional)
+- ViaVersion (Optional) (v4 only)
 
 <br/>
 
@@ -186,13 +187,10 @@ Use `&.` to terminate a color code (the '&.' will be removed from the message). 
 
 ## Commands
 ### `/notzsb`
- - `cleanOldDatabase` - Deletes the old database;
- - `convert` <all/<scoreboard>> - Convert all the old players and all or a specifically one of the old Scoreboards;
  - `create` \<name> \<display> (header) (template) (footer) - Creates the scoreboard with the option of already setting the templates.
  - `delete` \<scoreboard> - Deletes a scoreboard.
  - `list` - Lists all the scoreboards created.
  - `players` - Lists all registered players and their respective scoreboards.
- - `reload` - Reloads parts of the plugin.
  - `reset` \<player> - Resets the player's scoreboard to the default scoreboard.
  - `set` \<scoreboard> - Sets the scoreboard itself.
  - `update` - Updates all scoreboards.
