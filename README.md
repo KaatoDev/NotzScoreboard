@@ -2,15 +2,15 @@
   
 ##### **NotzPlugins**
 <a href="https://modrinth.com/plugin/notzexcavate">
-<img src="https://repo.kaato.dev/images/plugins/NotzExcavate2.png" alt="Notz Excavate" width="150"/>
+<img src="https://kaatodev.github.io/KaatoDev/images/plugins/NotzExcavate2.png" alt="Notz Excavate" width="150"/>
 </a>
-<img src="https://repo.kaato.dev/images/plugins/NotzScoreboard2.png" alt="Notz Scoreboard" width="150"/>
+<img src="https://kaatodev.github.io/KaatoDev/images/plugins/NotzScoreboard2.png" alt="Notz Scoreboard" width="150"/>
 <a href="https://modrinth.com/plugin/notzwarps">
-<img src="https://repo.kaato.dev/images/plugins/NotzWarps2.png" alt="Notz Warps" width="150"/>
+<img src="https://kaatodev.github.io/KaatoDev/images/plugins/NotzWarps2.png" alt="Notz Warps" width="150"/>
 </a>
   
 #
-<img src="https://repo.kaato.dev/images/plugins/NotzScoreboard2.png" alt="NotzScoreboardV3" height="300" >
+<img src="https://kaatodev.github.io/KaatoDev/images/plugins/NotzScoreboard2.png" alt="NotzScoreboardV3" height="300" >
 
 #
 NotzScoreboard is a complete and fully customizable scoreboard plugin that features: support for multiple simultaneous scoreboards; multiline and animation support; ViaVersion support for legacy players in 1.20/1.21 servers; its own placeholders and PlaceholderAPI; database via MySQL or SQLite and dynamic updating for greater efficiency.
@@ -46,8 +46,8 @@ For questions or issues: [Discord @Gago32](https://discord.com/users/25870101319
 
 ### Player example with staff on and off
 <div>
-<img src="https://repo.kaato.dev/images/plugins/NotzScoreboard/Player3-1.png" alt="Player1 scoreboard" width="300"/>
-<img src="https://repo.kaato.dev/images/plugins/NotzScoreboard/Player3-2.png" alt="Player2 scoreboard" width="300"/>
+<img src="https://kaatodev.github.io/KaatoDev/images/plugins/NotzScoreboard/Player3-1.png" alt="Player1 scoreboard" width="300"/>
+<img src="https://kaatodev.github.io/KaatoDev/images/plugins/NotzScoreboard/Player3-2.png" alt="Player2 scoreboard" width="300"/>
 </div>
 </details>
 
@@ -57,8 +57,8 @@ For questions or issues: [Discord @Gago32](https://discord.com/users/25870101319
 <details>
 <summary>Show</summary>
 <div>
-<img src="https://repo.kaato.dev/images/plugins/NotzScoreboard/Helper3.png" alt="Helper scoreboard" width="300"/>
-<img src="https://repo.kaato.dev/images/plugins/NotzScoreboard/Trial3.png" alt="Trial scoreboard" width="300"/>
+<img src="https://kaatodev.github.io/KaatoDev/images/plugins/NotzScoreboard/Helper3.png" alt="Helper scoreboard" width="300"/>
+<img src="https://kaatodev.github.io/KaatoDev/images/plugins/NotzScoreboard/Trial3.png" alt="Trial scoreboard" width="300"/>
 </div>
 </details>
 
@@ -68,8 +68,8 @@ For questions or issues: [Discord @Gago32](https://discord.com/users/25870101319
 <details>
 <summary>Show</summary>
 <div>
-<img src="https://repo.kaato.dev/images/plugins/NotzScoreboard/Mod3.png" alt="Mod scoreboard" width="300"/>
-<img src="https://repo.kaato.dev/images/plugins/NotzScoreboard/Admin3.png" alt="Admin scoreboard" width="300"/>
+<img src="https://kaatodev.github.io/KaatoDev/images/plugins/NotzScoreboard/Mod3.png" alt="Mod scoreboard" width="300"/>
+<img src="https://kaatodev.github.io/KaatoDev/images/plugins/NotzScoreboard/Admin3.png" alt="Admin scoreboard" width="300"/>
 </div>
 </details>
 
@@ -79,8 +79,8 @@ For questions or issues: [Discord @Gago32](https://discord.com/users/25870101319
 <details>
 <summary>Show</summary>
 <div>
-<img src="https://repo.kaato.dev/images/plugins/NotzScoreboard/Manager3.png" alt="Manager scoreboard" width="300"/>
-<img src="https://repo.kaato.dev/images/plugins/NotzScoreboard/Owner3.png" alt="Owner scoreboard" width="300"/>
+<img src="https://kaatodev.github.io/KaatoDev/images/plugins/NotzScoreboard/Manager3.png" alt="Manager scoreboard" width="300"/>
+<img src="https://kaatodev.github.io/KaatoDev/images/plugins/NotzScoreboard/Owner3.png" alt="Owner scoreboard" width="300"/>
 </div>
 </details>
 </div>
@@ -96,7 +96,7 @@ Use `--` or more hyphens to distinguish lines.
 `Placeholder` (the suffix), `:` (separate and keeps the ":"), `::` (only separates).
 
 ### Placeholder system
-It doesn't matter if you put a placeholder with `{}` or `%%`!
+It doesn't matter if you put a placeholder with `{}` or `%%`!\
 The `:` in placeholders defines a default message if the placeholder doesn't exist.
 
 ### Note:
@@ -115,8 +115,8 @@ templates:
       - '⎩ {status_rankup}'
       - ''
       - '⎧ Money: {money:0.0}'
-      - '--⎩ Cash&f: {cash:0c}'
-      - '--⎩ Tokens&f: {tokens:0t}'
+      - '--⎩ Cash&f: {cash:0c}'     # same line, but it will
+      - '--⎩ Tokens&f: {tokens:0t}' # alternate every X seconds
       - ''
       - '⎧ Clan: {simpleclans_clan:No clan}'
       - '⎩ KDR: {simpleclans_kdr:0.0}'
@@ -171,12 +171,14 @@ Use `&.` to terminate a color code (the '&.' will be removed from the message). 
 <br/>
 
 ## Placeholders
- - `{money}` - Player money straight from VaultUnlocked and formmated by NotzAPI. [PlaceholderAPI]
- - `{staff}` - Get the nick of one of the online players in the visible groups for that group.
- - `{supstaff}` - Same thing as {staff}, but returns an alternative message if there is no online player in the visible groups for that group.
- - `{staff_list}` - Number of online players in the visible groups for that group.
- - `{staff_'group'}` - Get one of the players in that group.
- - `{'group'_list}` - Gets the number of online players in that group.
+| Placeholder | Description |
+|:-----------:|-------------|
+|`{money}` | Player money straight from Vault and formmated by NotzAPI. [PlaceholderAPI-Vault]|
+|`{staff}` | Get the nick of one of the online players in the visible groups for that group.|
+|`{supstaff}` | Same thing as {staff}, but returns an alternative message if there is no online player in the visible groups for that group.|
+|`{staff_list}` | Number of online players in the visible groups for that group.|
+|`{staff_'group'}` | Get one of the players in that group.|
+|`{'group'_list}` | Gets the number of online players in that group.|
 
 <br/>
 
@@ -191,6 +193,7 @@ Use `&.` to terminate a color code (the '&.' will be removed from the message). 
  - `delete` \<scoreboard> - Deletes a scoreboard.
  - `list` - Lists all the scoreboards created.
  - `players` - Lists all registered players and their respective scoreboards.
+ - `reload` - Reloads the entire plugin.
  - `reset` \<player> - Resets the player's scoreboard to the default scoreboard.
  - `set` \<scoreboard> - Sets the scoreboard itself.
  - `update` - Updates all scoreboards.
