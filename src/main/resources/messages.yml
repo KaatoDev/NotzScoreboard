@@ -6,7 +6,12 @@ prefix: '&g2f2[NotzSbV4]&f'
 
 messages:
   no-perm: '&cNo permission.'
-  reload: '&aThe plugin is being restarted...'
+  reload1: '&eReloading the plugin...'
+  reload2: '&aThe plugin has been reloaded.'
+  reload3: "&cUnable to reload the plugin. Try restarting the server."
+  reload4: '&eReloading plugin files...'
+  reload5: '&aThe plugin files have been reloaded.'
+  reload6: "&cUnable to reload the plugin files. Try restarting the server."
   clearHeader: '&eThe header of the &fscoreboard {default} &ehas been reset!'
   clearFooter: '&eThe footer of the &fscoreboard {default} &ehas been reset!'
   clearTemplate: '&eThe &f{default} scoreboard &etemplate has been reset!'
@@ -51,7 +56,8 @@ messages:
     delete: 'Deletes a scoreboard.'
     list: 'Lists all created scoreboards.'
     players: 'Lists all registered players and their respective scoreboards.'
-    reload: 'Reloads parts of the plugin.'
+    reload: 'Reloads the config files.'
+    reloadplugin: 'Reloads the entire plugin.'
     reset: "Resets the player's scoreboard to the default scoreboard."
     set: 'Sets the scoreboard itself.'
     update: 'Updates all scoreboards.'

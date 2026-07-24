@@ -8,6 +8,7 @@ import dev.kaato.notzscoreboard.manager.CommandsManager.cleartemplateCMD
 import dev.kaato.notzscoreboard.manager.CommandsManager.createScoreboardCMD
 import dev.kaato.notzscoreboard.manager.CommandsManager.deleteScoreboardCMD
 import dev.kaato.notzscoreboard.manager.CommandsManager.pauseScoreboardCMD
+import dev.kaato.notzscoreboard.manager.CommandsManager.reloadPluginCMD
 import dev.kaato.notzscoreboard.manager.CommandsManager.remGroupFromCMD
 import dev.kaato.notzscoreboard.manager.CommandsManager.remPlayerFromCMD
 import dev.kaato.notzscoreboard.manager.CommandsManager.resetPlayerCMD
@@ -47,6 +48,7 @@ class NScoreboardC : TabExecutor {
             1 -> if (scoreboard == null) when (a[0]) {
                 "list" -> scoreboardListCMD(player)
                 "players" -> seePlayersCMD(player)
+                "reload" -> reloadPluginCMD(player) //                "reload" -> reloadConfigCMD(player)
                 "update" -> updateAllScoreboardsCMD(player)
                 else -> help(player)
 
@@ -85,9 +87,9 @@ class NScoreboardC : TabExecutor {
 
             } else help(player)
 
-            4  -> if (a[0] == "create") createScoreboardCMD(player, a[1], args[2], a[3]) else helpCreate(player)
-            5  -> if (a[0] == "create") createScoreboardCMD(player, a[1], args[2], a[3], a[4]) else helpCreate(player)
-            6  -> if (a[0] == "create") createScoreboardCMD(player, a[1], args[2], a[3], a[4], a[5]) else helpCreate(player)
+            4 -> if (a[0] == "create") createScoreboardCMD(player, a[1], args[2], a[3]) else helpCreate(player)
+            5 -> if (a[0] == "create") createScoreboardCMD(player, a[1], args[2], a[3], a[4]) else helpCreate(player)
+            6 -> if (a[0] == "create") createScoreboardCMD(player, a[1], args[2], a[3], a[4], a[5]) else helpCreate(player)
             else -> help(player, scoreboard)
         }
 
@@ -99,7 +101,7 @@ class NScoreboardC : TabExecutor {
         val scoreboard = if (a.isNotEmpty()) scoreboards.containsKey(a[0]) else false
 
         return when (a.size) {
-            1 -> arrayOf("create", "delete", "list", "players", "reset", "set", "update").filter { it.contains(a[0]) }.toMutableList()
+            1 -> arrayOf("create", "delete", "list", "players", "reload", "reset", "set", "update").filter { it.contains(a[0]) }.toMutableList()
 
             2 -> if (scoreboard) arrayOf("addplayer", "addgroup", "clearheader", "clearfooter", "cleartemplate", "pause", "players", "remplayer", "remgroup", "setcolor", "setdisplay", "setheader", "setfooter", "settemplate", "view", "visiblegroups").filter { it.contains(a[1]) }.toMutableList() else when (a[0]) {
                 "create" -> mutableListOf("<name>")
@@ -143,6 +145,7 @@ class NScoreboardC : TabExecutor {
                 &7+ &edelete &f<&escoreboard&f> &7- ${getMessage("commands.delete")}
                 &7+ &elist &7- ${getMessage("commands.list")}
                 &7+ &eplayers &7- ${getMessage("commands.players")}
+                &7+ &ereload &7- ${getMessage("commands.reloadplugin")}
                 &7+ &ereset &f<&eplayer&f> &7- ${getMessage("commands.reset")}
                 &7+ &eset &f<&escoreboard&f> &7- ${getMessage("commands.set")}
                 &7+ &eupdate &7- ${getMessage("commands.update")}

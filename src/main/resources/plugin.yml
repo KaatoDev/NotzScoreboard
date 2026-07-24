@@ -1,10 +1,13 @@
 name: NotzScoreboard
-version: '4.0'
-main: dev.kaato.notzscoreboard.NotzScoreboard
-api-version: '1.20'
 prefix: NotzScoreboard
+version: '$version'
+
+main: dev.kaato.notzscoreboard.NotzScoreboard
+api-version: '26.2'
+load: POSTWORLD
+
 authors: [ KaaDev ]
-description: A multi-scoreboard plugin for ranks, VIPs, and especially staff. Fully customizable.
+description: A multi scoreboard plugin for staff, ranks and VIPs with multi-line system and animation support. Fully customizable.
 website: https://kaato.dev
 softdepend: [ PlaceholderAPI, ViaVersion ]
 
