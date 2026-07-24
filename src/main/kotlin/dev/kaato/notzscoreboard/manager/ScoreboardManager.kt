@@ -6,6 +6,7 @@ import dev.kaato.notzscoreboard.NotzScoreboard.Companion.sf
 import dev.kaato.notzscoreboard.database.DatabaseManager.loadScoreboardsDB
 import dev.kaato.notzscoreboard.entities.ScoreboardE
 import dev.kaato.notzscoreboard.manager.PlayerManager.initializePlayers
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.scheduler.BukkitTask
@@ -182,7 +183,9 @@ object ScoreboardManager {
         return getPlayersFromGroups(visibleGroups).isNotEmpty()
     }
 
-    fun shutdown() {
+    fun shutdownScoreboard() {
+        Bukkit.getOnlinePlayers().forEach(PlayerManager::leavePlayer)
+
         if (animationTask != null)
             animationTask?.cancel()
 

@@ -1,5 +1,8 @@
 package dev.kaato.notzscoreboard.manager
 
+import dev.kaato.notzscoreboard.manager.MainManager.reloadConfig
+import dev.kaato.notzscoreboard.manager.MainManager.shutdown
+import dev.kaato.notzscoreboard.manager.MainManager.startup
 import dev.kaato.notzscoreboard.manager.PlayerManager.resetPlayer
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.addGroupTo
 import dev.kaato.notzscoreboard.manager.ScoreboardManager.addPlayerTo
@@ -19,6 +22,7 @@ import dev.kaato.notzscoreboard.manager.ScoreboardManager.viewScoreboard
 import dev.kaato.notzscoreboard.utils.MessageUtil.join
 import dev.kaato.notzscoreboard.utils.MessageUtil.send
 import dev.kaato.notzscoreboard.utils.MessageUtil.sendHeader
+import dev.kaato.notzscoreboard.utils.OthersUtil.isAdmin
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.text.ParseException
@@ -108,7 +112,7 @@ object CommandsManager {
             else send(player, "setTemplate2", defaults = listOf("footer", score.getDisplay()))
         }
 
-//        if (header == null && template == null && footer == null) send(player, "setTemplate3")
+        //        if (header == null && template == null && footer == null) send(player, "setTemplate3")
 
         setTemplate(scoreboard, header, template, footer)
     }
@@ -126,9 +130,9 @@ object CommandsManager {
         })
     }
 
-// scoreboard - end
-// -------------------
-// geral - start
+    // scoreboard - end
+    // -------------------
+    // geral - start
 
     fun updateAllScoreboardsCMD(player: Player) {
         updateAllScoreboards()
@@ -159,6 +163,35 @@ object CommandsManager {
             sendHeader(player, join(scorePlayers.toList(), separator = "\n"))
 
         } else send(player, "seePlayers")
+    }
+
+    fun reloadPluginCMD(player: Player) {
+        if (isAdmin(player)) try {
+            send(player, "reload1")
+
+            shutdown()
+            startup()
+
+            send(player, "reload2")
+
+        } catch (e: Exception) {
+            send(player, "reload3")
+
+        } else send(player, "no-perm")
+    }
+
+    fun reloadConfigCMD(player: Player) {
+        if (isAdmin(player)) try {
+            send(player, "reload4")
+
+            reloadConfig()
+
+            send(player, "reload5")
+
+        } catch (e: Exception) {
+            send(player, "reload6")
+
+        } else send(player, "no-perm")
     }
 
     fun scoreboardListCMD(player: Player) {

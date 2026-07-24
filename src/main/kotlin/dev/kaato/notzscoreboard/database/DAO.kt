@@ -5,6 +5,7 @@ import dev.kaato.notzscoreboard.NotzScoreboard.Companion.pathRaw
 import dev.kaato.notzscoreboard.utils.MessageUtil.log
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.sql.SQLException
 
@@ -36,4 +37,8 @@ class DAO {
     }
 
     fun getDatabase() = database
+
+    fun close() {
+        TransactionManager.closeAndUnregister(database)
+    }
 }
